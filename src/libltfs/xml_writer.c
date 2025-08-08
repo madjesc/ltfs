@@ -55,6 +55,7 @@
 *************************************************************************************
 */
 
+#include <cstdio>
 #include <libxml/xmlstring.h>
 #include <libxml/xmlwriter.h>
 
@@ -108,6 +109,9 @@ int xml_output_tape_write_callback(void *context, const char *buffer, int len)
 	uint32_t copy_count; /* number of bytes of "buffer" to write immediately */
 	uint32_t bytes_remaining; /* number of input bytes waiting to be handled */
 
+	for (int i = 0; i < len; i++) {
+    printf("%c", buffer[i]);
+	}
 	if (len == 0)
 		return 0;
 

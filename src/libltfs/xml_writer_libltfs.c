@@ -62,6 +62,7 @@
 #include "pathname.h"
 #include "inc_journal.h"
 #include "arch/time_internal.h"
+#include <cstdio>
 
 /* Structure to control EE's file offset cache and sync file list */
 struct ltfsee_cache
@@ -578,6 +579,8 @@ static int _xml_write_schema(xmlTextWriterPtr writer, const char *creator,
 	}
 
 	xml_mktag(xmlTextWriterEndElement(writer), -1);
+	// xmlChar* __c = xmlOutputBufferGetContent(write_buf);
+	// printf(__c);
 	ret = xmlTextWriterEndDocument(writer);
 	if (ret < 0) {
 		ltfsmsg(LTFS_ERR, 17058E, ret);
@@ -1246,7 +1249,7 @@ int xml_schema_to_file(const char *filename, const char *creator,
 int xml_schema_to_tape(char *reason, int type, struct ltfs_volume *vol)
 {
 	int ret, bk = -1;
-	xmlOutputBufferPtr write_buf;
+	xmlOutputBufferPtr write_buf, __buff;
 	xmlTextWriterPtr writer;
 	struct xml_output_tape *out_ctx;
 	char *creator = NULL;
@@ -1282,6 +1285,7 @@ int xml_schema_to_tape(char *reason, int type, struct ltfs_volume *vol)
 	write_buf = xmlOutputBufferCreateIO(xml_output_tape_write_callback,
 										xml_output_tape_close_callback,
 										out_ctx, NULL);
+	// __buff = xmlOutputBufferCreateFilename("-", NULL, 0);
 	if (! write_buf) {
 		ltfsmsg(LTFS_ERR, 17053E);
 		if (out_ctx->fd >= 0)
@@ -1370,6 +1374,9 @@ int xml_schema_to_tape(char *reason, int type, struct ltfs_volume *vol)
 		ret = -LTFS_NO_MEMORY;
 	}
 
+	// xmlChar* __c = xmlOutputBufferGetContent(write_buf);
+	// printf(__c);
+	xmlBuffer
 	free(out_ctx->buf);
 	free(out_ctx);
 
