@@ -55,7 +55,6 @@
 *************************************************************************************
 */
 
-#include <cstdio>
 #include <libxml/xmlstring.h>
 #include <libxml/xmlwriter.h>
 
