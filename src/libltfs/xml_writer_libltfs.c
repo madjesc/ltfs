@@ -1375,7 +1375,6 @@ int xml_schema_to_tape(char *reason, int type, struct ltfs_volume *vol)
 
 	// xmlChar* __c = xmlOutputBufferGetContent(write_buf);
 	// printf(__c);
-	xmlBuffer
 	free(out_ctx->buf);
 	free(out_ctx);
 
