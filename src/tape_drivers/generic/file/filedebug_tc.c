@@ -956,7 +956,6 @@ int filedebug_writefm(void *device, size_t count, struct tc_position *pos, bool 
 		}
 		state->eod[state->current_position.partition] = state->current_position.block;
 		ret = DEVICE_GOOD;
-
 	} else {
 		/* Increment Write Pass for consistency check */
 		if(state->write_pass_prev == state->write_pass){

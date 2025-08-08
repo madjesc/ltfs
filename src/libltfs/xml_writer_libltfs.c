@@ -62,7 +62,6 @@
 #include "pathname.h"
 #include "inc_journal.h"
 #include "arch/time_internal.h"
-#include <cstdio>
 
 /* Structure to control EE's file offset cache and sync file list */
 struct ltfsee_cache
