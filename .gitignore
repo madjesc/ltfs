@@ -1,5 +1,6 @@
-# Cmake build files
+# CMake build files
 build
+.cache
 
 # Enviroment files and directories
 .zed

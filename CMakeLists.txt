@@ -8,3 +8,5 @@ project(ltfs
 find_package(Threads REQUIRED)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+add_subdirectory(libxml2)
+include_directories(uthash/include)
