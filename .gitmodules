@@ -1,0 +1,6 @@
+[submodule "uthash"]
+	path = uthash
+	url = https://github.com/troydhanson/uthash.git
+[submodule "libxml2"]
+	path = libxml2
+	url = https://github.com/GNOME/libxml2.git
