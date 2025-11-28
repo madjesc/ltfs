@@ -1,0 +1,14 @@
+= LTFS(8)
+Linear Tape File System
+v2.4.8.1
+:doctype: manpage
+:manmanual: LTFS
+:mansource: LTFS
+
+== Name
+
+ltfs - File system based on linear tape devices
+
+== Synopsis
+
+ltfs [_OPTION_]... _DEVICE_ _MOUNTPOINT_
