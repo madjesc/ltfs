@@ -13,3 +13,4 @@ add_subdirectory(libxml2)
 include_directories(uthash/include)
 
 add_subdirectory(man)
+add_subdirectory(src)
