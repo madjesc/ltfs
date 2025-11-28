@@ -1,0 +1,42 @@
+#pragma once
+/**
+ * Message header definition for TAPE FILE module
+ * range: 31000 - 31199
+ */
+
+#define I31000 "Opening a device through generic itdtimage driver (%s)."
+#define E31001 "Failed to open %s: %s (%llu)."
+#define E31002 "Failed to seek to %lld (%s, %lld)."
+#define I31003 "Closing device through generic itdtimage driver (%s)."
+#define D31004 "Backend read: %llu bytes (from position=(%u, %llu), FMs %llu)."
+#define E31005 "Cannot read: unit not ready."
+#define E31006 "Cannot rewind: unit not ready."
+#define E31007 "Cannot locate: unit not ready."
+#define E31008 "Cannot locate: invalid partition %lu."
+#define E31009 "Cannot space: unit not ready."
+#define E31010 "Cannot space: Unrecognized space type."
+#define D31011 "state: CurrPosPart=%lld CurrPosBlck=%lld CurrPosFM=%lld Reserved=%d Locked=%d Ready=%d."
+#define E31012 "Cannot read position: unit not ready."
+#define E31013 "Cannot set capacity: must issue command from partition 0, block 0."
+#define E31014 "Cannot format: must issue command from partition 0, block 0."
+#define E31015 "Cannot format: unknown format type."
+#define E31016 "Cannot get remaining capacity: unit not ready."
+#define E31017 "Device already reserved."
+#define E31018 "Cannot lock medium: unit not ready."
+#define E31019 "Cannot unlock medium: unit not ready."
+#define D31020 "Read attribute: %d %x."
+#define E31021 "Cannot erase: unit not ready."
+#define D31022 "Erase partition %lu."
+#define E31024 "Cannot set compression: unit not ready."
+#define E31025 "Cannot space %s: tried to space over BOT."
+#define I31026 "Getting the device directory (%s)."
+#define I31027 "No device directory is specified (%s)."
+#define I31028 "Scanning the devices directory (%s)."
+#define E31029 "Cannot open the device directory (%s)."
+#define D31030 "Found a device (%s, %s, %s, %s)."
+#define D31195 "Backend %s."
+#define D31196 "Backend %s: %llu."
+#define D31197 "Backend %s: (%llu, %llu)."
+#define D31198 "Backend %s: (%llu, %llu) FM = %llu."
+#define I31199 "itdtimg backend options:\n" \
+  "    -o devname=<dev>          tape device (default=%s)\n."
