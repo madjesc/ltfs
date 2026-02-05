@@ -36,7 +36,7 @@
 dnl
 dnl LTFS configure.ac.
 dnl
-AC_INIT([LTFS], [2.4.5.1 (Prelim)], IBM corporation.)
+AC_INIT([LTFS],[2.5.0.0 (Prelim)],[IBM corporation.])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIRS([m4])
@@ -46,7 +46,13 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 AC_PROG_CC
 AC_USE_SYSTEM_EXTENSIONS
-AC_PROG_CC_C99
+# m4_warn([obsolete],
+# [m4_warn([obsolete],
+# [AC_PROG_CC_C99 is obsolete; use AC_PROG_CC
+# ])dnl
+# AC_REQUIRE(AC_PROG_CC) is obsolete; use AC_PROG_CC
+# ])dnl
+# AC_REQUIRE(AC_PROG_CC)
 AM_PROG_CC_C_O
 AM_PROG_AR
 AC_PROG_LIBTOOL
