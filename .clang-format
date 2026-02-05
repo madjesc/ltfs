@@ -1,0 +1,31 @@
+---
+Language: Cpp
+CompactNamespaces: false
+NamespaceIndentation: All
+IndentGotoLabels: true
+IndentCaseLabels: true
+IndentAccessModifiers: true
+AlignArrayOfStructures: Left
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+BinPackArguments: false
+SpaceBeforeCpp11BracedList: true
+AlignConsecutiveBitFields:
+  Enabled: true
+AlignConsecutiveMacros:
+  Enabled: true
+SortIncludes:
+  Enabled: true
+  IgnoreCase: true
+IndentPPDirectives: AfterHash
+RequiresExpressionIndentation: OuterScope
+IndentExternBlock: AfterExternBlock
+IndentExportBlock: true
+IndentCaseBlocks: true
+SeparateDefinitionBlocks: Always
+BreakFunctionDefinitionParameters: false
+SpaceAfterCStyleCast: true
+AllowShortFunctionsOnASingleLine: InlineOnly
+ColumnLimit: 170
+AlignEscapedNewlines: LeftWithLastLine
+PackConstructorInitializers: NextLineOnly

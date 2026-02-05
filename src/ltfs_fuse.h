@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -63,83 +64,91 @@ extern "C" {
 #endif
 
 #ifdef mingw_PLATFORM
-#include "libltfs/arch/win/win_util.h"
+#  include "libltfs/arch/win/win_util.h"
 #endif
 
-#include "libltfs/ltfs_fuse_version.h"
-#include <fuse.h>
 #include "libltfs/ltfs.h"
+#include "libltfs/ltfs_fuse_version.h"
 #include "libltfs/plugin.h"
 #include "libltfs/uthash.h"
+#include <fuse.h>
 
 struct ltfs_fuse_data {
-	bool first_parsing_pass;       /**< Just looking for a config file? If so, don't print help */
+    bool first_parsing_pass; /**< Just looking for a config file? If so, don't
+                                print help */
 
-	struct statvfs fs_stats;       /**< Filesystem stats */
+    struct statvfs fs_stats; /**< Filesystem stats */
 
-	pid_t pid_orig;                /**< Process ID of LTFS at launched (before background exec) */
+    pid_t pid_orig; /**< Process ID of LTFS at launched (before background exec)
+                     */
 
-	bool perm_override;            /**< Did the user ask for any permissions override? */
-	uid_t mount_uid;               /**< Real UID of the mounting user */
-	gid_t mount_gid;               /**< Real GID of the mounting user */
-	mode_t file_mode;              /**< All files are assigned this mode, maybe minus write bits */
-	mode_t dir_mode;               /**< All directories are assigned this mode */
+    bool perm_override; /**< Did the user ask for any permissions override? */
+    uid_t mount_uid;    /**< Real UID of the mounting user */
+    gid_t mount_gid;    /**< Real GID of the mounting user */
+    mode_t file_mode;   /**< All files are assigned this mode, maybe minus write
+                           bits */
+    mode_t dir_mode;    /**< All directories are assigned this mode */
 
-	/* overrides for the permission setup */
-	char *force_uid;               /**< Override for the uid */
-	char *force_gid;               /**< Override for the gid */
-	char *force_umask;             /**< Override for the umask */
-	char *force_fmask;             /**< Override for the file umask */
-	char *force_dmask;             /**< Override for the directory umask */
+    /* overrides for the permission setup */
+    char *force_uid;   /**< Override for the uid */
+    char *force_gid;   /**< Override for the gid */
+    char *force_umask; /**< Override for the umask */
+    char *force_fmask; /**< Override for the file umask */
+    char *force_dmask; /**< Override for the directory umask */
 
-	char *sync_type_str;           /**< Sync type fetched by option (time, close or none)*/
-	ltfs_sync_type_t sync_type;    /**< Sync type (time, close or none)*/
-	long sync_time;                /**< Sync time*/
+    char *sync_type_str;        /**< Sync type fetched by option (time, close or none)*/
+    ltfs_sync_type_t sync_type; /**< Sync type (time, close or none)*/
+    long sync_time;             /**< Sync time*/
 
-	bool snmp_enabled;             /**< Indicates if the snmp service is enabled */
-	char *snmp_deffile;            /**< SNMP definition file */
+    bool snmp_enabled;  /**< Indicates if the snmp service is enabled */
+    char *snmp_deffile; /**< SNMP definition file */
 
-	const char *devname;              /**< Device where tape resides */
-	const char *tape_backend_name;    /**< Name of tape backend library or path to library */
-	const char *iosched_backend_name; /**< Name or path to the I/O scheduler backend library */
-	const char *dcache_backend_name;  /**< Name or path to the dentry cache library */
-	const char *kmi_backend_name;     /**< Name or path to the key manager interface backend library */
+    const char *devname;              /**< Device where tape resides */
+    const char *tape_backend_name;    /**< Name of tape backend library or path to
+                                         library */
+    const char *iosched_backend_name; /**< Name or path to the I/O scheduler
+                                         backend library */
+    const char *dcache_backend_name;  /**< Name or path to the dentry cache library */
+    const char *kmi_backend_name;     /**< Name or path to the key manager interface
+                                         backend library */
 
-	const char *config_file;       /**< Path to ltfs.conf */
-	const char *work_directory;    /**< The directory where LTFS will put its temporary files */
+    const char *config_file;    /**< Path to ltfs.conf */
+    const char *work_directory; /**< The directory where LTFS will put its
+                                   temporary files */
 
-	char *force_min_pool;          /**< Override for min pool size */
-	char *force_max_pool;          /**< Override for the max pool size */
-	size_t min_pool_size;          /**< Minimum write cache pool size in MiB */
-	size_t max_pool_size;          /**< Maximum write cache pool size in MiB */
-	char *index_rules;             /**< Index rules (overrides the ones specified at format time) */
+    char *force_min_pool; /**< Override for min pool size */
+    char *force_max_pool; /**< Override for the max pool size */
+    size_t min_pool_size; /**< Minimum write cache pool size in MiB */
+    size_t max_pool_size; /**< Maximum write cache pool size in MiB */
+    char *index_rules;    /**< Index rules (overrides the ones specified at format
+                             time) */
 
-	struct ltfs_volume *data;            /**< LTFS data */
+    struct ltfs_volume *data; /**< LTFS data */
 
-	struct config_file *config;            /**< Plugin configuration data */
-	struct libltfs_plugin tape_plugin;     /**< Tape drive plugin */
-	struct libltfs_plugin iosched_plugin;  /**< I/O scheduler plugin */
-	struct libltfs_plugin dcache_plugin;   /**< Dentry cache plugin */
-	struct libltfs_plugin kmi_plugin;      /**< Key manager interface plugin */
+    struct config_file *config;           /**< Plugin configuration data */
+    struct libltfs_plugin tape_plugin;    /**< Tape drive plugin */
+    struct libltfs_plugin iosched_plugin; /**< I/O scheduler plugin */
+    struct libltfs_plugin dcache_plugin;  /**< Dentry cache plugin */
+    struct libltfs_plugin kmi_plugin;     /**< Key manager interface plugin */
 
-	int atime;                     /**< Update the XML schema on access */
-	int verbose;                   /**< Logging level (1=quiet, 2=normal, 3=trace) */
-	int eject;                     /**< Eject cartridge after unmount? */
-	int skip_eod_check;            /**< Skip EOD check? */
-	int device_list;               /**< List available tape devices */
-	char *rollback_str;            /**< Target generation to roll back mount (string) */
-	unsigned int rollback_gen;     /**< Target generation to roll back mount */
-	int release_device;            /**< Release device? */
-	int allow_other;               /**< Allow all users to access the volume? */
-	char *capture_dir;             /**< Directory to capture index information  */
-	char *symlink_str;             /**< Symbolic Link type fetched by option (live or posix)*/
-	char *str_append_only_mode;    /**< option sting of scsi_append_only_mode */
-	int append_only_mode;          /**< Use append-only mode */
+    int atime;                  /**< Update the XML schema on access */
+    int verbose;                /**< Logging level (1=quiet, 2=normal, 3=trace) */
+    int eject;                  /**< Eject cartridge after unmount? */
+    int skip_eod_check;         /**< Skip EOD check? */
+    int device_list;            /**< List available tape devices */
+    char *rollback_str;         /**< Target generation to roll back mount (string) */
+    unsigned int rollback_gen;  /**< Target generation to roll back mount */
+    int release_device;         /**< Release device? */
+    int allow_other;            /**< Allow all users to access the volume? */
+    char *capture_dir;          /**< Directory to capture index information  */
+    char *symlink_str;          /**< Symbolic Link type fetched by option (live or posix)*/
+    char *str_append_only_mode; /**< option sting of scsi_append_only_mode */
+    int append_only_mode;       /**< Use append-only mode */
 
-	bool advanced_help;            /**< Include standard FUSE options on --help? */
+    bool advanced_help; /**< Include standard FUSE options on --help? */
 
-	ltfs_mutex_t file_table_lock; /**< Controls access to 'open_files' */
-	struct file_info *file_table;    /**< Hash table of open file handles */
+    ltfs_mutex_t file_table_lock; /**< Controls access to 'open_files' */
+    struct file_info *file_table; /**< Hash table of open file handles */
 };
 
 #ifdef __cplusplus
@@ -152,9 +161,9 @@ struct ltfs_fuse_data {
  * a file may have many open handles).
  */
 struct ltfs_file_handle {
-	struct file_info *file_info; /**< open_file data associated with this file handle */
-	bool dirty;                  /**< True if this handle has been written but not synced */
-	ltfs_mutex_t lock;
+    struct file_info *file_info; /**< open_file data associated with this file handle */
+    bool dirty;                  /**< True if this handle has been written but not synced */
+    ltfs_mutex_t lock;
 };
 
 /**
@@ -162,12 +171,13 @@ struct ltfs_file_handle {
  * There is one file_info structure for each file with open handles.
  */
 struct file_info {
-	char *path;           /**< Path originally used to open this file */
-	void *dentry_handle;  /**< File data */
-	bool write_index;     /**< True if an index should be written once this file is closed */
-	uint32_t open_count;  /**< Reference counter */
-	ltfs_mutex_t lock;
-	UT_hash_handle hh;
+    char *path;          /**< Path originally used to open this file */
+    void *dentry_handle; /**< File data */
+    bool write_index;    /**< True if an index should be written once this file is
+                            closed */
+    uint32_t open_count; /**< Reference counter */
+    ltfs_mutex_t lock;
+    UT_hash_handle hh;
 };
 
 /**

@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -38,7 +39,8 @@
 **
 ** FILE NAME:       pathname.h
 **
-** DESCRIPTION:     Header file for Unicode text analysis and processing routines.
+** DESCRIPTION:     Header file for Unicode text analysis and processing
+* routines.
 **
 ** AUTHORS:         Brian Biskeborn
 **                  IBM Almaden Research Center
@@ -48,7 +50,8 @@
 */
 
 /** \file
- * Functions for converting and manipulating file, directory, and extended attribute names.
+ * Functions for converting and manipulating file, directory, and extended
+ * attribute names.
  */
 
 #ifndef __PATHNAME_H__
@@ -58,13 +61,13 @@
 extern "C" {
 #endif
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #ifdef __APPLE_MAKEFILE__
-#include <ICU/unicode/utypes.h>
+#  include <ICU/unicode/utypes.h>
 #else
-#include <unicode/utypes.h>
+#  include <unicode/utypes.h>
 #endif
 
 int pathname_format(const char *name, char **new_name, bool validate, bool path);

@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -38,7 +39,8 @@
 **
 ** FILE NAME:       arch/filename_handling.h
 **
-** DESCRIPTION:     Prototypes for platform-specific filename handling functions.
+** DESCRIPTION:     Prototypes for platform-specific filename handling
+* functions.
 **
 ** AUTHOR:          Takashi Ashida
 **                  IBM Yamato, Japan
@@ -52,7 +54,7 @@
 
 #include "libltfs/ltfs.h"
 
-void update_platform_safe_name(struct dentry* dentry, bool handle_invalid_char, struct ltfs_index *idx);
+void update_platform_safe_name(struct dentry *dentry, bool handle_invalid_char, struct ltfs_index *idx);
 int ltfs_compare_names(const char *name1, const char *name2, int *result);
 
 #endif /* time_internal_h_ */

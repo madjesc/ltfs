@@ -18,7 +18,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -60,95 +61,73 @@
 
 typedef pthread_rwlock_t MultiReaderSingleWriter;
 
-static inline int
-init_mrsw(MultiReaderSingleWriter *mrsw)
-{
-	return (pthread_rwlock_init(mrsw, NULL));
+static inline int init_mrsw(MultiReaderSingleWriter *mrsw) {
+  return (pthread_rwlock_init(mrsw, NULL));
 }
 
-static inline void
-destroy_mrsw(MultiReaderSingleWriter *mrsw)
-{
-	pthread_rwlock_destroy(mrsw);
+static inline void destroy_mrsw(MultiReaderSingleWriter *mrsw) {
+  pthread_rwlock_destroy(mrsw);
 }
 
-static inline bool
-try_acquirewrite_mrsw(MultiReaderSingleWriter *mrsw)
-{
-	int err;
+static inline bool try_acquirewrite_mrsw(MultiReaderSingleWriter *mrsw) {
+  int err;
 
-	err = pthread_rwlock_trywrlock(mrsw);
-	if (err)
-		return false;
-	else
-		return true;
+  err = pthread_rwlock_trywrlock(mrsw);
+  if (err)
+    return false;
+  else
+    return true;
 }
 
-static inline void
-acquirewrite_mrsw(MultiReaderSingleWriter *mrsw)
-{
-	pthread_rwlock_wrlock(mrsw);
+static inline void acquirewrite_mrsw(MultiReaderSingleWriter *mrsw) {
+  pthread_rwlock_wrlock(mrsw);
 }
 
-static inline void
-acquirewrite_mrsw_long(MultiReaderSingleWriter *mrsw)
-{
-	/* XXX KDM long lock? */
-	pthread_rwlock_wrlock(mrsw);
+static inline void acquirewrite_mrsw_long(MultiReaderSingleWriter *mrsw) {
+  /* XXX KDM long lock? */
+  pthread_rwlock_wrlock(mrsw);
 }
 
-static inline void
-releasewrite_mrsw(MultiReaderSingleWriter *mrsw)
-{
-	pthread_rwlock_unlock(mrsw);
+static inline void releasewrite_mrsw(MultiReaderSingleWriter *mrsw) {
+  pthread_rwlock_unlock(mrsw);
 }
 
-static inline void
-acquireread_mrsw(MultiReaderSingleWriter *mrsw)
-{
-	pthread_rwlock_rdlock(mrsw);
+static inline void acquireread_mrsw(MultiReaderSingleWriter *mrsw) {
+  pthread_rwlock_rdlock(mrsw);
 }
 
-static inline int
-acquireread_mrsw_short(MultiReaderSingleWriter *mrsw)
-{
-	int ret = 0;
+static inline int acquireread_mrsw_short(MultiReaderSingleWriter *mrsw) {
+  int ret = 0;
 
-	ret = pthread_rwlock_rdlock(mrsw);
-	if (ret != 0)
-		return -1;
-	else
-		return 0;
+  ret = pthread_rwlock_rdlock(mrsw);
+  if (ret != 0)
+    return -1;
+  else
+    return 0;
 }
 
-static inline void
-releaseread_mrsw(MultiReaderSingleWriter *mrsw)
-{
-	pthread_rwlock_unlock(mrsw);
+static inline void releaseread_mrsw(MultiReaderSingleWriter *mrsw) {
+  pthread_rwlock_unlock(mrsw);
 }
 
-static inline void
-release_mrsw(MultiReaderSingleWriter *mrsw)
-{
-	pthread_rwlock_unlock(mrsw);
+static inline void release_mrsw(MultiReaderSingleWriter *mrsw) {
+  pthread_rwlock_unlock(mrsw);
 }
 
-//downgrades a write lock to a read lock
-static inline void
-writetoread_mrsw(MultiReaderSingleWriter *mrsw)
-{
-	/*
-	 * The original intent of this function was to downgrade from write lock
-	 * to read lock with higher priority than incoming write
-	 * locks. pthread_rwlock doesn't provide this semantic,so we just
-	 * release the lock and reacquire a reader lock on it. This demotion is
-	 * only used by _ltfs_fsraw_write_data_unlocked() to release the write
-	 * lock before returning. If there are pending writers on the volume
-	 * lock at this point, they could prevent
-	 * _ltfs_fsraw_write_data_unlocked)_ from returning immediately.
-	 */
-	pthread_rwlock_unlock(mrsw);
-	pthread_rwlock_rdlock(mrsw);
+// downgrades a write lock to a read lock
+static inline void writetoread_mrsw(MultiReaderSingleWriter *mrsw) {
+  /*
+   * The original intent of this function was to downgrade from write lock
+   * to read lock with higher priority than incoming write
+   * locks. pthread_rwlock doesn't provide this semantic,so we just
+   * release the lock and reacquire a reader lock on it. This demotion is
+   * only used by _ltfs_fsraw_write_data_unlocked() to release the write
+   * lock before returning. If there are pending writers on the volume
+   * lock at this point, they could prevent
+   * _ltfs_fsraw_write_data_unlocked)_ from returning immediately.
+   */
+  pthread_rwlock_unlock(mrsw);
+  pthread_rwlock_rdlock(mrsw);
 }
 
 #endif /* __FREEBSD_LOCKING_OLD_H__ */

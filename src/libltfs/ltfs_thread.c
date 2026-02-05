@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -49,44 +50,40 @@
 
 #ifdef __APPLE__
 
-#include <pthread.h>
-#include <mach/mach.h>
+#  include <mach/mach.h>
+#  include <pthread.h>
 
-uint32_t ltfs_get_thread_id(void)
-{
-	uint32_t tid;
+uint32_t ltfs_get_thread_id(void) {
+  uint32_t tid;
 
-	tid = (uint32_t)pthread_mach_thread_np(pthread_self());
+  tid = (uint32_t) pthread_mach_thread_np(pthread_self());
 
-	return tid;
+  return tid;
 }
 
 #elif defined(__FreeBSD__)
 
-#include <pthread.h>
-#include <pthread_np.h>
+#  include <pthread.h>
+#  include <pthread_np.h>
 
-uint32_t ltfs_get_thread_id(void)
-{
-	uint32_t tid;
+uint32_t ltfs_get_thread_id(void) {
+  uint32_t tid;
 
-	tid = (uint32_t)pthread_getthreadid_np();
+  tid = (uint32_t) pthread_getthreadid_np();
 
-	return tid;
+  return tid;
 }
 
 #elif defined(__NetBSD__)
 
-#include <pthread.h>
+#  include <pthread.h>
 
-uint32_t ltfs_get_thread_id(void)
-{
-	uint32_t tid;
+uint32_t ltfs_get_thread_id(void) {
+  uint32_t tid;
 
-	tid = (uint32_t)pthread_self();
+  tid = (uint32_t) pthread_self();
 
-	return tid;
+  return tid;
 }
-
 
 #endif

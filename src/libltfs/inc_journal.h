@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -53,64 +54,65 @@
 #include "queue.h"
 
 #ifndef __inc_journal_h__
-#define __inc_journal_h__
+#  define __inc_journal_h__
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 extern "C" {
-#endif
+#  endif
 
 /**
  * Enumeration of reasons for an entry
  */
 enum journal_reason {
-	CREATE = 0,        /**< Newly created, need to be 0 for debug  */
-	MODIFY,            /**< Modified */
-	DELETE_FILE,       /**< File is deleted */
-	DELETE_DIRECTORY,  /**< Directory is deleted */
+  CREATE = 0,       /**< Newly created, need to be 0 for debug  */
+  MODIFY,           /**< Modified */
+  DELETE_FILE,      /**< File is deleted */
+  DELETE_DIRECTORY, /**< Directory is deleted */
 };
 
 /**
  * Identifier of journal entry for handling multiple changes in one session
  */
 struct journal_id {
-	char     *full_path; /**< Full path name of the target */
-	uint64_t uid;        /**< i-node number of the target */
+    char *full_path; /**< Full path name of the target */
+    uint64_t uid;    /**< i-node number of the target */
 };
 
 /**
  * Journal entry
  */
 struct jentry {
-	struct journal_id     id;           /**< ID of the journal entry (key of the hash table) */
-	enum   journal_reason reason;       /**< Reason of the entry */
-	struct dentry         *dentry;      /**< Target dentry if required */
-	struct ltfs_name      name;         /**< Name of entry for delete */
-	UT_hash_handle        hh;
+    struct journal_id id;       /**< ID of the journal entry (key of the hash table) */
+    enum journal_reason reason; /**< Reason of the entry */
+    struct dentry *dentry;      /**< Target dentry if required */
+    struct ltfs_name name;      /**< Name of entry for delete */
+    UT_hash_handle hh;
 };
 
 /**
  * Created directory list
  */
 struct jcreated_entry {
-	TAILQ_ENTRY(jcreated_entry) list; /**< Pointers for linked list of requests */
-	char *path;
+    TAILQ_ENTRY(jcreated_entry)
+    list; /**< Pointers for linked list of requests */
+    char *path;
 };
 
 /**
  *
  */
 struct incj_path_element {
-	struct incj_path_element *prev;
-	struct incj_path_element *next;
-	char* name;
-	struct dentry *d;
+    struct incj_path_element *prev;
+    struct incj_path_element *next;
+    char *name;
+    struct dentry *d;
 };
 
 struct incj_path_helper {
-	struct incj_path_element *head;
-	struct incj_path_element *tail;
-	struct ltfs_volume *vol;
-	unsigned int elems;
+    struct incj_path_element *head;
+    struct incj_path_element *tail;
+    struct ltfs_volume *vol;
+    unsigned int elems;
 };
 
 int incj_create(char *ppath, struct dentry *d, struct ltfs_volume *vol);
@@ -126,12 +128,11 @@ int incj_create_path_helper(const char *path, struct incj_path_helper **pm, stru
 int incj_destroy_path_helper(struct incj_path_helper *pm);
 int incj_push_directory(char *name, struct incj_path_helper *pm);
 int incj_pop_directory(struct incj_path_helper *pm);
-int incj_compare_path(struct incj_path_helper *p1, struct incj_path_helper *p2,
-					  int *matches, int *pops, bool *perfect_match);
-char* incj_get_path(struct incj_path_helper *pm);
+int incj_compare_path(struct incj_path_helper *p1, struct incj_path_helper *p2, int *matches, int *pops, bool *perfect_match);
+char *incj_get_path(struct incj_path_helper *pm);
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 }
-#endif
+#  endif
 
 #endif /* __inc_journal_h__ */

@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -56,13 +57,13 @@ extern "C" {
 #endif
 
 #ifdef mingw_PLATFORM
-	#include "ltfs_locking_old.h"
+#  include "ltfs_locking_old.h"
 #else /* ! mingw_PLATFORM */
-	#ifdef USE_NEW_LOCKING
-		#include "ltfs_locking_new.h"
-	#else
-		#include "ltfs_locking_old.h"
-	#endif
+#  ifdef USE_NEW_LOCKING
+#    include "ltfs_locking_new.h"
+#  else
+#    include "ltfs_locking_old.h"
+#  endif
 #endif
 
 #ifdef __cplusplus

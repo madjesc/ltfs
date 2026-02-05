@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -54,39 +55,40 @@
 #define DEFAULT_CAPACITY_MB (3 * (GB / MB))
 
 /* emulation of delays due to tape seeks */
-#define DEFAULT_WRAPS            (40)       /* 40 wraps (76MB/wrap by default) */
-#define DEFAULT_EOT_TO_BOT       (12)       /* time to seek from begin of tape to end of tape, in seconds */
-#define DEFAULT_CHANGE_DIRECTION (2000000)  /* time to change tape direction, in microseconds */
-#define DEFAULT_CHANGE_TRACK     (10000)    /* time to change track, in microseconds */
-#define DEFAULT_THREADING        (12)       /* time to threading/unthreading in sec */
+#define DEFAULT_WRAPS            (40)      /* 40 wraps (76MB/wrap by default) */
+#define DEFAULT_EOT_TO_BOT       (12)      /* time to seek from begin of tape to end of tape, in seconds */
+#define DEFAULT_CHANGE_DIRECTION (2000000) /* time to change tape direction, in microseconds */
+#define DEFAULT_CHANGE_TRACK                                            \
+  (10000)                      /* time to change track, in microseconds \
+                                */
+#define DEFAULT_THREADING (12) /* time to threading/unthreading in sec */
 
 enum {
-	DELAY_NONE = 0, /**< No delay emulation */
-	DELAY_CALC,     /**< Only calculate delay time, no wait */
-	DELAY_EMULATE   /**< Calculate delay time and wait */
+  DELAY_NONE = 0, /**< No delay emulation */
+  DELAY_CALC,     /**< Only calculate delay time, no wait */
+  DELAY_EMULATE   /**< Calculate delay time and wait */
 };
 
-struct filedebug_conf_tc
-{
-	bool          dummy_io;            /**< Dummy IO mode to evaliate upper layer performance */
-	bool          emulate_readonly;    /**< True to emulate a cartridge in read-only mode */
-	uint64_t      capacity_mb;         /**< Configure cartridge capacity */
-	unsigned char cart_type;           /**< Cartridge type defined in tape_drivers.h */
-	unsigned char density_code;        /**< Density code */
-	/*
-	 * TODO: Following improvement is needed for delay emulation
-	 *
-	 *  1. blocks per wrap can be calculated from capacity and number of wraps
-	 *  2. Improve wrap change for write, read and locate
-	 *  3. Improve locate within the drive buffer
-	 *  4. Support back hitch emulation
-	 */
-	int       delay_mode;          /**< Emulated delay mode */
-	uint64_t  wraps;               /**< Number of wraps */
-	uint64_t  eot_to_bot_sec;      /**< Locate time to BOT to EOT for emulate delay */
-	uint64_t  change_direction_us; /**< Time to change direction for emulate delay */
-	uint64_t  change_track_us;     /**< Time to change track for emulate delay */
-	uint64_t  threading_sec;       /**< Time to mechanical threading/unthreading */
+struct filedebug_conf_tc {
+    bool dummy_io;              /**< Dummy IO mode to evaliate upper layer performance */
+    bool emulate_readonly;      /**< True to emulate a cartridge in read-only mode */
+    uint64_t capacity_mb;       /**< Configure cartridge capacity */
+    unsigned char cart_type;    /**< Cartridge type defined in tape_drivers.h */
+    unsigned char density_code; /**< Density code */
+    /*
+     * TODO: Following improvement is needed for delay emulation
+     *
+     *  1. blocks per wrap can be calculated from capacity and number of wraps
+     *  2. Improve wrap change for write, read and locate
+     *  3. Improve locate within the drive buffer
+     *  4. Support back hitch emulation
+     */
+    int delay_mode;               /**< Emulated delay mode */
+    uint64_t wraps;               /**< Number of wraps */
+    uint64_t eot_to_bot_sec;      /**< Locate time to BOT to EOT for emulate delay */
+    uint64_t change_direction_us; /**< Time to change direction for emulate delay */
+    uint64_t change_track_us;     /**< Time to change track for emulate delay */
+    uint64_t threading_sec;       /**< Time to mechanical threading/unthreading */
 };
 
 int filedebug_conf_tc_write_xml(char *filename, const struct filedebug_conf_tc *conf);

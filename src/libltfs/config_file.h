@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -61,8 +62,8 @@ struct config_file;
 /**
  * Read LTFS configuration information from the given file.
  * @param path File to read. If NULL, the default path is used.
- * @param config On success, points to a newly allocated configuration data structure.
- *               Its value is undefined on failure.
+ * @param config On success, points to a newly allocated configuration data
+ * structure. Its value is undefined on failure.
  * @return 0 on success or a negative value on error.
  */
 int config_file_load(const char *path, struct config_file **config);
@@ -76,7 +77,7 @@ void config_file_free(struct config_file *config);
 /**
  * Read the default plugin from a config file structure.
  * @param type Plugin type.
- * @param config Configuration data structure to read. 
+ * @param config Configuration data structure to read.
  * @return The default driver name, or NULL on error.
  */
 const char *config_file_get_default_plugin(const char *type, struct config_file *config);
@@ -94,17 +95,18 @@ const char *config_file_get_lib(const char *type, const char *name, struct confi
  * Get a list of all plugins found in the configuration file.
  * @param type Plugin type.
  * @param config Configuration structure to search.
- * @return A NULL-terminated list of plugin names on success, or NULL on failure.
+ * @return A NULL-terminated list of plugin names on success, or NULL on
+ * failure.
  */
 char **config_file_get_plugins(const char *type, struct config_file *config);
 
 /**
- * Get a list of all default options found in the configuration file. 
- * @param type Option type 
+ * Get a list of all default options found in the configuration file.
+ * @param type Option type
  * @param config Configuration structure to search.
- * @return a NULL-terminated list of option names on success, or NULL on failure.
+ * @return a NULL-terminated list of option names on success, or NULL on
+ * failure.
  */
 char **config_file_get_options(const char *type, struct config_file *config);
 
 #endif /* __CONFIG_FILE_H__ */
-

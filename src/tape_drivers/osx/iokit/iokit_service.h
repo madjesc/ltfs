@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -59,17 +60,16 @@
 #include <IOKit/IOTypes.h>
 #include <IOKit/scsi/SCSITaskLib.h>
 
-struct iokit_device
-{
-	/* Equivalent to fd in other platforms */
-	mach_port_t             masterPort;           /**< OS X master port to kernel for IOKit calls */
-	io_service_t            ioservice;            /**< Service instance for the selected tape drive */
-	IOCFPlugInInterface     **plugInInterface;    /**< IOKit plugin interface */
-	SCSITaskDeviceInterface **scsiTaskInterface;  /**< IOKit task device interface */
-	SCSITaskInterface       **task;               /**< Reusable task object */
-	bool                    exclusive_lock;       /**< OS X exclusive lock held on device */
-	/* */
-	bool                    is_data_key_set;      /**< Is a valid data key set? */
+struct iokit_device {
+    /* Equivalent to fd in other platforms */
+    mach_port_t masterPort;                      /**< OS X master port to kernel for IOKit calls */
+    io_service_t ioservice;                      /**< Service instance for the selected tape drive */
+    IOCFPlugInInterface **plugInInterface;       /**< IOKit plugin interface */
+    SCSITaskDeviceInterface **scsiTaskInterface; /**< IOKit task device interface */
+    SCSITaskInterface **task;                    /**< Reusable task object */
+    bool exclusive_lock;                         /**< OS X exclusive lock held on device */
+    /* */
+    bool is_data_key_set; /**< Is a valid data key set? */
 };
 
 /**

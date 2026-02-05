@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -51,16 +52,16 @@
 #define __LTFSSNMP_H__
 
 #ifdef ENABLE_SNMP
-#include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-includes.h>
-#include <net-snmp/agent/net-snmp-agent-includes.h>
+#  include <net-snmp/agent/net-snmp-agent-includes.h>
+#  include <net-snmp/net-snmp-config.h>
+#  include <net-snmp/net-snmp-includes.h>
 #endif
 
-#include <stdbool.h>
-#include <errno.h>
-#include "libltfs/queue.h"
 #include "libltfs/ltfs_error.h"
 #include "libltfs/ltfslogging.h"
+#include "libltfs/queue.h"
+#include <errno.h>
+#include <stdbool.h>
 
 /*
  * function declarations
@@ -74,4 +75,4 @@ int send_ltfsStopTrap(void);
 int send_ltfsInfoTrap(char *);
 int send_ltfsErrorTrap(char *);
 
-#endif         /* __LTFSSNMP_H__ */
+#endif /* __LTFSSNMP_H__ */

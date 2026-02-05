@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -53,8 +54,8 @@ extern "C" {
 #endif
 
 int periodic_sync_thread_init(int sec, struct ltfs_volume *vol);
-int periodic_sync_thread_destroy(void* syncer_handle);
-bool periodic_sync_thread_initialized(void* syncer_handle);
+int periodic_sync_thread_destroy(void *syncer_handle);
+bool periodic_sync_thread_initialized(void *syncer_handle);
 
 #ifdef __cplusplus
 }

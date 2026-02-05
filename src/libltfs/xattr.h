@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -63,7 +64,7 @@ extern "C" {
 #endif
 
 #ifdef __FreeBSD__
-#include "libltfs/arch/freebsd/xattr.h"
+#  include "libltfs/arch/freebsd/xattr.h"
 #endif
 
 #include "ltfs.h"
@@ -75,19 +76,16 @@ int xattr_get_string(const char *val, char **outval, const char *msg);
 int xattr_get_u64(uint64_t val, char **outval, const char *msg);
 
 /* Official functions to export */
-int xattr_set(struct dentry *d, const char *name, const char *value, size_t size, int flags,
-	struct ltfs_volume *vol);
-int xattr_get(struct dentry *d, const char *name, char *value, size_t size,
-	struct ltfs_volume *vol);
+int xattr_set(struct dentry *d, const char *name, const char *value, size_t size, int flags, struct ltfs_volume *vol);
+int xattr_get(struct dentry *d, const char *name, char *value, size_t size, struct ltfs_volume *vol);
 int xattr_list(struct dentry *d, char *list, size_t size, struct ltfs_volume *vol);
 int xattr_remove(struct dentry *d, const char *name, struct ltfs_volume *vol);
 
 /** For internal use only */
-int xattr_do_set(struct dentry *d, const char *name, const char *value, size_t size,
-	struct xattr_info *xattr);
+int xattr_do_set(struct dentry *d, const char *name, const char *value, size_t size, struct xattr_info *xattr);
 int xattr_do_remove(struct dentry *d, const char *name, bool force, struct ltfs_volume *vol);
 const char *xattr_strip_name(const char *name);
-int xattr_set_mountpoint_length(struct dentry *d, const char* value, size_t size);
+int xattr_set_mountpoint_length(struct dentry *d, const char *value, size_t size);
 
 #ifdef __cplusplus
 }

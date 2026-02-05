@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -48,191 +49,186 @@
 */
 
 #ifdef DEBUG
-#include <stdio.h>
-#define ltfsmsg(a, b, c)
+#  include <stdio.h>
+#  define ltfsmsg(a, b, c)
 #endif
 
 #include <errno.h>
 #include <stdlib.h>
 
-#include "libltfs/ltfslogging.h"
 #include "libltfs/ltfs_locking.h"
+#include "libltfs/ltfslogging.h"
 #include "libltfs/uthash.h"
 #include "tape_drivers/open_factor.h"
 
 struct openfactor_channel {
-	int channel;       /* ID of the channel */
-	int count;         /* Open count through this channel */
-	UT_hash_handle hh; /* Hash handle */
+    int channel;       /* ID of the channel */
+    int count;         /* Open count through this channel */
+    UT_hash_handle hh; /* Hash handle */
 };
 
 struct openfactor_host {
-	int host;                           /* ID of the host (HBA) */
-	int count;                          /* Open count through this host */
-	struct openfactor_channel *channel; /* Link to the corresponded channel table */
-	UT_hash_handle hh;                  /* Hash handle */
+    int host;                           /* ID of the host (HBA) */
+    int count;                          /* Open count through this host */
+    struct openfactor_channel *channel; /* Link to the corresponded channel table */
+    UT_hash_handle hh;                  /* Hash handle */
 };
 
 static struct openfactor_host *openfactor_table = NULL; /* The open factor table */
 static ltfs_mutex_t table_lock;
 
-void init_openfactor(void)
-{
-	ltfs_mutex_init(&table_lock);
+void init_openfactor(void) {
+  ltfs_mutex_init(&table_lock);
 }
 
-void destroy_openfactor(void)
-{
-	struct openfactor_host    *he = NULL, *tmph; /* Pointer to host entry    */
-	struct openfactor_channel *ce = NULL, *tmpc; /* Pointer to channel entry */
+void destroy_openfactor(void) {
+  struct openfactor_host *he = NULL, *tmph;    /* Pointer to host entry    */
+  struct openfactor_channel *ce = NULL, *tmpc; /* Pointer to channel entry */
 
-	HASH_ITER(hh, openfactor_table, he, tmph) {
-		HASH_DEL(openfactor_table, he);
+  HASH_ITER(hh, openfactor_table, he, tmph) {
+    HASH_DEL(openfactor_table, he);
 
-		HASH_ITER(hh, he->channel, ce, tmpc) {
-			HASH_DEL(he->channel, ce);
-			free(ce);
-		}
+    HASH_ITER(hh, he->channel, ce, tmpc) {
+      HASH_DEL(he->channel, ce);
+      free(ce);
+    }
 
-		free(he);
-	}
+    free(he);
+  }
 
-	ltfs_mutex_destroy(&table_lock);
+  ltfs_mutex_destroy(&table_lock);
 }
 
-void increment_openfactor(int host, int channel)
-{
-	struct openfactor_host    *he = NULL; /* Pointer to host entry    */
-	struct openfactor_channel *ce = NULL; /* Pointer to channel entry */
+void increment_openfactor(int host, int channel) {
+  struct openfactor_host *he = NULL;    /* Pointer to host entry    */
+  struct openfactor_channel *ce = NULL; /* Pointer to channel entry */
 
-	ltfs_mutex_lock(&table_lock);
+  ltfs_mutex_lock(&table_lock);
 
-	HASH_FIND_INT(openfactor_table, &host, he);
-	if (he) {
-		HASH_FIND_INT(he->channel, &channel, ce);
-		if (!ce) {
-			ce = calloc(1, sizeof(struct openfactor_channel));
-			if (!ce) {
-				ltfs_mutex_unlock(&table_lock);
-				/* memory allocation error, print error and return */
-				ltfsmsg(LTFS_ERR, 10001E, __FUNCTION__);
-				return;
-			}
+  HASH_FIND_INT(openfactor_table, &host, he);
+  if (he) {
+    HASH_FIND_INT(he->channel, &channel, ce);
+    if (!ce) {
+      ce = calloc(1, sizeof(struct openfactor_channel));
+      if (!ce) {
+        ltfs_mutex_unlock(&table_lock);
+        /* memory allocation error, print error and return */
+        ltfsmsg(LTFS_ERR, 10001E, __FUNCTION__);
+        return;
+      }
 
-			ce->channel = channel;
-			ce->count   = 1;
-			HASH_ADD_INT(he->channel, channel, ce);
+      ce->channel = channel;
+      ce->count = 1;
+      HASH_ADD_INT(he->channel, channel, ce);
 
-			he->count++;
-		} else {
-			ce->count++;
-			he->count++;
-		}
-	} else {
-		he = calloc(1, sizeof(struct openfactor_host));
-		if (!he) {
-			ltfs_mutex_unlock(&table_lock);
-			/* memory allocation error, print error and return */
-			ltfsmsg(LTFS_ERR, 10001E, __FUNCTION__);
-			return;
-		}
+      he->count++;
+    } else {
+      ce->count++;
+      he->count++;
+    }
+  } else {
+    he = calloc(1, sizeof(struct openfactor_host));
+    if (!he) {
+      ltfs_mutex_unlock(&table_lock);
+      /* memory allocation error, print error and return */
+      ltfsmsg(LTFS_ERR, 10001E, __FUNCTION__);
+      return;
+    }
 
-		ce = calloc(1, sizeof(struct openfactor_channel));
-		if (!ce) {
-			ltfs_mutex_unlock(&table_lock);
-			/* memory allocation error, print error and return */
-			free(he);
-			ltfsmsg(LTFS_ERR, 10001E, __FUNCTION__);
-			return;
-		}
+    ce = calloc(1, sizeof(struct openfactor_channel));
+    if (!ce) {
+      ltfs_mutex_unlock(&table_lock);
+      /* memory allocation error, print error and return */
+      free(he);
+      ltfsmsg(LTFS_ERR, 10001E, __FUNCTION__);
+      return;
+    }
 
-		he->host    = host;
-		he->count   = 1;
+    he->host = host;
+    he->count = 1;
 
-		ce->channel = channel;
-		ce->count   = 1;
-		HASH_ADD_INT(he->channel, channel, ce);
-		HASH_ADD_INT(openfactor_table, host, he);
-	}
+    ce->channel = channel;
+    ce->count = 1;
+    HASH_ADD_INT(he->channel, channel, ce);
+    HASH_ADD_INT(openfactor_table, host, he);
+  }
 
-	ltfs_mutex_unlock(&table_lock);
+  ltfs_mutex_unlock(&table_lock);
 }
 
-void decrement_openfactor(int host, int channel)
-{
-	struct openfactor_host    *he = NULL; /* Pointer to host entry    */
-	struct openfactor_channel *ce = NULL; /* Pointer to channel entry */
+void decrement_openfactor(int host, int channel) {
+  struct openfactor_host *he = NULL;    /* Pointer to host entry    */
+  struct openfactor_channel *ce = NULL; /* Pointer to channel entry */
 
-	ltfs_mutex_lock(&table_lock);
+  ltfs_mutex_lock(&table_lock);
 
-	HASH_FIND_INT(openfactor_table, &host, he);
-	if (he) {
-		HASH_FIND_INT(he->channel, &channel, ce);
-		if (ce) {
-			if (he->count) he->count--;
-			if (ce->count) ce->count--;
-		}
-	}
+  HASH_FIND_INT(openfactor_table, &host, he);
+  if (he) {
+    HASH_FIND_INT(he->channel, &channel, ce);
+    if (ce) {
+      if (he->count)
+        he->count--;
+      if (ce->count)
+        ce->count--;
+    }
+  }
 
-	ltfs_mutex_unlock(&table_lock);
+  ltfs_mutex_unlock(&table_lock);
 }
 
-int get_openfactor(int host, int channel)
-{
-	struct openfactor_host    *he = NULL; /* Pointer to host entry    */
-	struct openfactor_channel *ce = NULL; /* Pointer to channel entry */
-	int ret = 0;
+int get_openfactor(int host, int channel) {
+  struct openfactor_host *he = NULL;    /* Pointer to host entry    */
+  struct openfactor_channel *ce = NULL; /* Pointer to channel entry */
+  int ret = 0;
 
-	ltfs_mutex_lock(&table_lock);
+  ltfs_mutex_lock(&table_lock);
 
-	HASH_FIND_INT(openfactor_table, &host, he);
-	if (he) {
-		HASH_FIND_INT(he->channel, &channel, ce);
-		if (ce)
-			ret =  ((he->count << 16) | ce->count);
-	}
+  HASH_FIND_INT(openfactor_table, &host, he);
+  if (he) {
+    HASH_FIND_INT(he->channel, &channel, ce);
+    if (ce)
+      ret = ((he->count << 16) | ce->count);
+  }
 
-	ltfs_mutex_unlock(&table_lock);
+  ltfs_mutex_unlock(&table_lock);
 
-	return ret;
+  return ret;
 }
 
 #ifdef DEBUG
-int main(int argc, char **argv)
-{
-	init_openfactor();
+int main(int argc, char **argv) {
+  init_openfactor();
 
-	increment_openfactor(0, 0);
+  increment_openfactor(0, 0);
 
-	increment_openfactor(0, 1);
-	increment_openfactor(0, 1);
+  increment_openfactor(0, 1);
+  increment_openfactor(0, 1);
 
-	increment_openfactor(0, 2);
-	increment_openfactor(0, 2);
-	increment_openfactor(0, 2);
+  increment_openfactor(0, 2);
+  increment_openfactor(0, 2);
+  increment_openfactor(0, 2);
 
-	increment_openfactor(1, 2);
-	increment_openfactor(1, 2);
+  increment_openfactor(1, 2);
+  increment_openfactor(1, 2);
 
-	increment_openfactor(1, 1);
-	increment_openfactor(1, 1);
-	increment_openfactor(1, 1);
-	increment_openfactor(1, 1);
+  increment_openfactor(1, 1);
+  increment_openfactor(1, 1);
+  increment_openfactor(1, 1);
+  increment_openfactor(1, 1);
 
-	increment_openfactor(1, 0);
-	increment_openfactor(1, 0);
-	increment_openfactor(1, 0);
-	increment_openfactor(1, 0);
-	increment_openfactor(1, 0);
-	increment_openfactor(1, 0);
+  increment_openfactor(1, 0);
+  increment_openfactor(1, 0);
+  increment_openfactor(1, 0);
+  increment_openfactor(1, 0);
+  increment_openfactor(1, 0);
+  increment_openfactor(1, 0);
 
+  for (int i = 0; i < 2; i++) {
+    for (int j = 0; j < 4; j++) {
+      printf("(%d, %d) = %x\n", i, j, get_openfactor(i, j));
+    }
+  }
 
-	for (int i = 0; i < 2; i++) {
-		for (int j = 0; j < 4; j++) {
-			printf("(%d, %d) = %x\n", i, j, get_openfactor(i, j));
-		}
-	}
-
-	destroy_openfactor();
+  destroy_openfactor();
 }
 #endif

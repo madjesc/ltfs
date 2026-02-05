@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -52,9 +53,9 @@
 
 #ifdef __APPLE__
 
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
+#  include <stdlib.h>
+#  include <string.h>
+#  include <sys/types.h>
 
 size_t strnlen(const char *s, size_t maxlen);
 
@@ -63,4 +64,3 @@ char *strndup(const char *s, size_t maxlen);
 #endif /* __APPLE__ */
 
 #endif /* __osx_string_h */
-

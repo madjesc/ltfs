@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -52,17 +53,17 @@
 extern "C" {
 #endif
 
-#define HASH_FIND_PARTIAL(structure,start,length,table,search,result)	\
-do {																	\
-	structure *s, *tmp;													\
-	result = NULL;														\
-	HASH_ITER(hh, table, s, tmp) {										\
-		if (HASH_KEYCMP(&s->start, &search.start, length) == 0) {		\
-			result = s;													\
-			break;														\
-		}																\
-	}																	\
-} while (0)
+#define HASH_FIND_PARTIAL(structure, start, length, table, search, result) \
+  do {                                                                     \
+    structure *s, *tmp;                                                    \
+    result = NULL;                                                         \
+    HASH_ITER(hh, table, s, tmp) {                                         \
+      if (HASH_KEYCMP(&s->start, &search.start, length) == 0) {            \
+        result = s;                                                        \
+        break;                                                             \
+      }                                                                    \
+    }                                                                      \
+  } while (0)
 
 #ifdef __cplusplus
 }

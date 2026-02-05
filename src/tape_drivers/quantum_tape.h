@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -47,34 +48,34 @@
 *************************************************************************************
 */
 
-#include <stdlib.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #include "tape_drivers/spc_op_codes.h"
 #include "tape_drivers/ssc_op_codes.h"
 #include "tape_drivers/tape_drivers.h"
 
-#include "libltfs/ltfslogging.h"
 #include "libltfs/ltfs_error.h"
+#include "libltfs/ltfslogging.h"
 
 #ifndef __quantum_tape_h
 
-#define __quantum_tape_h
+#  define __quantum_tape_h
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 extern "C" {
-#endif
+#  endif
 
-#define QUANTUM_VENDOR_ID "QUANTUM"
+#  define QUANTUM_VENDOR_ID "QUANTUM"
 
 extern struct error_table quantum_tape_errors[];
 
-int quantum_tape_init_timeout(struct timeout_tape** table, int type);
+int quantum_tape_init_timeout(struct timeout_tape **table, int type);
 
 extern struct supported_device *quantum_supported_drives[];
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 }
-#endif
+#  endif
 
 #endif // __quantum_tape_h

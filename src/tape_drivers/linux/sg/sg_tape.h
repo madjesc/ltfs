@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -51,46 +52,47 @@
 #define __sg_tape_h
 
 struct sg_data {
-	struct sg_tape       dev;                  /**< device structure of sg */
-	bool                 loaded;               /**< Is cartridge loaded? */
-	bool                 loadfailed;           /**< Is load/unload failed? */
-	bool                 is_reserved;          /**< Is reserved? */
-	bool                 is_tape_locked;       /**< Is medium removal prevented? */
-	bool                 is_reconnecting;      /**< Reconnecting, suppress nested reconnect */
-	char                 drive_serial[255];    /**< serial number of device */
-	long                 fetch_sec_acq_loss_w; /**< Sec to fetch Active CQs loss write */
-	bool                 dirty_acq_loss_w;     /**< Is Active CQs loss write dirty */
-	float                acq_loss_w;           /**< Active CQs loss write */
-	uint64_t             tape_alert;           /**< Latched tape alert flag */
-	unsigned char        dki[12];              /**< key-alias */
-	bool                 use_sili;             /**< Default true, false for USB drives */
-	int                  vendor;               /**< drive vendor */
-	int                  drive_type;           /**< drive type defined by ltfs */
-	bool                 clear_by_pc;          /**< clear pseudo write perm by partition change */
-	uint64_t             force_writeperm;      /**< pseudo write perm threshold */
-	uint64_t             force_readperm;       /**< pseudo read perm threshold */
-	uint64_t             write_counter;        /**< write call counter for pseudo write perm */
-	uint64_t             read_counter;         /**< read call counter for pseudo write perm */
-	int                  force_errortype;      /**< 0 is R/W Perm, otherwise no sense */
-	char                 *devname;             /**< Identifier for drive on host */
-	unsigned char        key[KEYLEN];          /**< Key for persistent reserve */
-	bool                 is_worm;              /**< Is worm cartridge loaded? */
-	unsigned char        cart_type;            /**< Cartridge type in CM */
-	unsigned char        density_code;         /**< Density code */
-	crc_enc              f_crc_enc;            /**< Pointer to CRC encode function */
-	crc_check            f_crc_check;          /**< Pointer to CRC encode function */
-	struct timeout_tape  *timeouts;            /**< Timeout table */
-	struct tc_drive_info info;                 /**< Drive information */
-	FILE*                profiler;             /**< The file pointer for profiler */
-	int                  recursive_counter;    /**< Recursive counter for take dump */
+    struct sg_tape dev;            /**< device structure of sg */
+    bool loaded;                   /**< Is cartridge loaded? */
+    bool loadfailed;               /**< Is load/unload failed? */
+    bool is_reserved;              /**< Is reserved? */
+    bool is_tape_locked;           /**< Is medium removal prevented? */
+    bool is_reconnecting;          /**< Reconnecting, suppress nested reconnect */
+    char drive_serial[255];        /**< serial number of device */
+    long fetch_sec_acq_loss_w;     /**< Sec to fetch Active CQs loss write */
+    bool dirty_acq_loss_w;         /**< Is Active CQs loss write dirty */
+    float acq_loss_w;              /**< Active CQs loss write */
+    uint64_t tape_alert;           /**< Latched tape alert flag */
+    unsigned char dki[12];         /**< key-alias */
+    bool use_sili;                 /**< Default true, false for USB drives */
+    int vendor;                    /**< drive vendor */
+    int drive_type;                /**< drive type defined by ltfs */
+    bool clear_by_pc;              /**< clear pseudo write perm by partition change */
+    uint64_t force_writeperm;      /**< pseudo write perm threshold */
+    uint64_t force_readperm;       /**< pseudo read perm threshold */
+    uint64_t write_counter;        /**< write call counter for pseudo write perm */
+    uint64_t read_counter;         /**< read call counter for pseudo write perm */
+    int force_errortype;           /**< 0 is R/W Perm, otherwise no sense */
+    char *devname;                 /**< Identifier for drive on host */
+    unsigned char key[KEYLEN];     /**< Key for persistent reserve */
+    bool is_worm;                  /**< Is worm cartridge loaded? */
+    unsigned char cart_type;       /**< Cartridge type in CM */
+    unsigned char density_code;    /**< Density code */
+    crc_enc f_crc_enc;             /**< Pointer to CRC encode function */
+    crc_check f_crc_check;         /**< Pointer to CRC encode function */
+    struct timeout_tape *timeouts; /**< Timeout table */
+    struct tc_drive_info info;     /**< Drive information */
+    FILE *profiler;                /**< The file pointer for profiler */
+    int recursive_counter;         /**< Recursive counter for take dump */
 };
 
 struct sg_global_data {
-	char     *str_crc_checking; /**< option string for crc_checking */
-	unsigned crc_checking;      /**< Is crc checking enabled? */
-	unsigned strict_drive;      /**< Is bar code length checked strictly? */
-	unsigned disable_auto_dump; /**< Is auto dump disabled? */
-	unsigned capacity_offset;   /**< Dummy capacity offset to create full tape earlier */
+    char *str_crc_checking;     /**< option string for crc_checking */
+    unsigned crc_checking;      /**< Is crc checking enabled? */
+    unsigned strict_drive;      /**< Is bar code length checked strictly? */
+    unsigned disable_auto_dump; /**< Is auto dump disabled? */
+    unsigned capacity_offset;   /**< Dummy capacity offset to create full tape
+                                   earlier */
 };
 
 #endif // __sg_tape_h

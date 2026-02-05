@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -52,47 +53,47 @@
 
 #if defined(__linux__)
 
-#if defined(__i386__)
-#define BUILD_SYS_FOR "This binary is built for Linux (i386)"
-#define BUILD_SYS_GCC __VERSION__
-#elif defined(__x86_64__)
-#define BUILD_SYS_FOR "This binary is built for Linux (x86_64)"
-#define BUILD_SYS_GCC __VERSION__
-#elif defined(__ppc__)
-#define BUILD_SYS_FOR "This binary is built for Linux (ppc)"
-#define BUILD_SYS_GCC __VERSION__
-#elif defined(__ppc64__)
-#define BUILD_SYS_FOR "This binary is built for Linux (ppc64)"
-#define BUILD_SYS_GCC __VERSION__
-#else
-#define BUILD_SYS_FOR "This binary is built for Linux (unknown)"
-#define BUILD_SYS_GCC __VERSION__
-#endif
+#  if defined(__i386__)
+#    define BUILD_SYS_FOR "This binary is built for Linux (i386)"
+#    define BUILD_SYS_GCC __VERSION__
+#  elif defined(__x86_64__)
+#    define BUILD_SYS_FOR "This binary is built for Linux (x86_64)"
+#    define BUILD_SYS_GCC __VERSION__
+#  elif defined(__ppc__)
+#    define BUILD_SYS_FOR "This binary is built for Linux (ppc)"
+#    define BUILD_SYS_GCC __VERSION__
+#  elif defined(__ppc64__)
+#    define BUILD_SYS_FOR "This binary is built for Linux (ppc64)"
+#    define BUILD_SYS_GCC __VERSION__
+#  else
+#    define BUILD_SYS_FOR "This binary is built for Linux (unknown)"
+#    define BUILD_SYS_GCC __VERSION__
+#  endif
 
 #elif defined(__APPLE__)
 
-#define BUILD_SYS_FOR "This binary is built for Mac OS X "
-#define BUILD_SYS_GCC __VERSION__
+#  define BUILD_SYS_FOR "This binary is built for Mac OS X "
+#  define BUILD_SYS_GCC __VERSION__
 
 #elif defined(__FreeBSD__)
 
-#define BUILD_SYS_FOR "This binary is built for FreeBSD"
-#define BUILD_SYS_GCC __VERSION__
+#  define BUILD_SYS_FOR "This binary is built for FreeBSD"
+#  define BUILD_SYS_GCC __VERSION__
 
 #elif defined(__NetBSD__)
 
-#define BUILD_SYS_FOR "This binary is built for NetBSD"
-#define BUILD_SYS_GCC __VERSION__
+#  define BUILD_SYS_FOR "This binary is built for NetBSD"
+#  define BUILD_SYS_GCC __VERSION__
 
 #elif defined(mingw_PLATFORM)
 
-#define BUILD_SYS_FOR "This binary is built for Windows"
-#define BUILD_SYS_GCC __VERSION__
+#  define BUILD_SYS_FOR "This binary is built for Windows"
+#  define BUILD_SYS_GCC __VERSION__
 
 #else
 
-#define BUILD_SYS_FOR "This binary is built on an unknown OS"
-#define BUILD_SYS_GCC __VERSION__
+#  define BUILD_SYS_FOR "This binary is built on an unknown OS"
+#  define BUILD_SYS_GCC __VERSION__
 
 #endif
 

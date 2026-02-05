@@ -17,7 +17,8 @@
 **     contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+* IS''
 **  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 **  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 **  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -51,14 +52,13 @@
 #define __uuid_internal_h__
 
 #ifdef mingw_PLATFORM
-#include "libltfs/arch/win/win_util.h"
-#define ltfs_gen_uuid(uuid_str) gen_uuid_win(uuid_str)
+#  include "libltfs/arch/win/win_util.h"
+#  define ltfs_gen_uuid(uuid_str) gen_uuid_win(uuid_str)
 
 #else
 void gen_uuid_unix(char *uuid_str);
-#define ltfs_gen_uuid(uuid_str) gen_uuid_unix(uuid_str)
+#  define ltfs_gen_uuid(uuid_str) gen_uuid_unix(uuid_str)
 
 #endif /* mingw_PLATFORM */
 
 #endif /* __uuid_internal_h__ */
-
