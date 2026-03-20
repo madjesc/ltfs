@@ -995,13 +995,13 @@ int ltfs_get_append_position(uint64_t *pos, struct ltfs_volume *vol)
 			if (vol->index->selfptr.partition == ltfs_dp_id(vol))
 				*pos = vol->index->selfptr.block;
 			else
-				*pos = vol->index->backptr.block;
+				*pos = vol->index->full_backptr.block;
 		}
 	} else {
 		if (vol->index->selfptr.partition == ltfs_dp_id(vol))
 			*pos = vol->index->selfptr.block;
 		else
-			*pos = vol->index->backptr.block;
+			*pos = vol->index->full_backptr.block;
 	}
 
 	return ret;
@@ -1293,7 +1293,7 @@ struct tape_offset ltfs_get_index_backpointer(struct ltfs_volume *vol)
 	err = ltfs_get_volume_lock(false, vol);
 	if (err < 0)
 		return ret;
-	ret = vol->index->backptr;
+	ret = vol->index->full_backptr;
 	releaseread_mrsw(&vol->lock);
 	return ret;
 }
@@ -1944,8 +1944,8 @@ int ltfs_mount(bool force_full, bool deep_recovery, bool recover_extra, bool rec
 			(unsigned long long)vol->index->generation,
 			vol->index->selfptr.partition,
 			(unsigned long long)vol->index->selfptr.block,
-			vol->index->backptr.partition,
-			(unsigned long long)vol->index->backptr.block,
+			vol->index->full_backptr.partition,
+			(unsigned long long)vol->index->full_backptr.block,
 			tape_get_serialnumber(vol->device));
 
 out_unlock:
@@ -2543,9 +2543,9 @@ int ltfs_write_index(char partition, char *reason, struct ltfs_volume *vol)
 	}
 
 	/* update back pointer */
-	old_backptr = vol->index->backptr;
+	old_backptr = vol->index->full_backptr;
 	if (vol->index->selfptr.partition == ltfs_dp_id(vol))
-		memcpy(&vol->index->backptr, &vol->index->selfptr, sizeof(struct tape_offset));
+		memcpy(&vol->index->full_backptr, &vol->index->selfptr, sizeof(struct tape_offset));
 
 	/* update self pointer */
 	ret = tape_get_position(vol->device, &physical_selfptr);
@@ -2555,7 +2555,7 @@ int ltfs_write_index(char partition, char *reason, struct ltfs_volume *vol)
 			vol->index->mod_time = modtime_old;
 			--vol->index->generation;
 		}
-		vol->index->backptr = old_backptr;
+		vol->index->full_backptr = old_backptr;
 		goto out_write_perm;
 	}
 
@@ -2567,7 +2567,7 @@ int ltfs_write_index(char partition, char *reason, struct ltfs_volume *vol)
 		return -1;
 	}
 
-	/* Prior to writing the index, compare the current location of the head position to the head location 
+	/* Prior to writing the index, compare the current location of the head position to the head location
 	that is kept in the cache of ltfs (physical_selfptr). If they are different return error (-1) */
 	diff = ((unsigned long long)physical_selfptr.block - (unsigned long long)current_position.block);
 	if (diff) {
@@ -2591,7 +2591,7 @@ int ltfs_write_index(char partition, char *reason, struct ltfs_volume *vol)
 				vol->index->mod_time = modtime_old;
 				--vol->index->generation;
 			}
-			vol->index->backptr = old_backptr;
+			vol->index->full_backptr = old_backptr;
 			vol->index->selfptr = old_selfptr;
 
 			if (IS_WRITE_PERM(-ret))
@@ -2611,7 +2611,7 @@ int ltfs_write_index(char partition, char *reason, struct ltfs_volume *vol)
 			vol->index->mod_time = modtime_old;
 			--vol->index->generation;
 		}
-		vol->index->backptr = old_backptr;
+		vol->index->full_backptr = old_backptr;
 		vol->index->selfptr = old_selfptr;
 
 		if (IS_WRITE_PERM(-ret))
@@ -2628,7 +2628,7 @@ int ltfs_write_index(char partition, char *reason, struct ltfs_volume *vol)
 			vol->index->mod_time = modtime_old;
 			--vol->index->generation;
 		}
-		vol->index->backptr = old_backptr;
+		vol->index->full_backptr = old_backptr;
 		vol->index->selfptr = old_selfptr;
 
 		if (IS_WRITE_PERM(-ret))
@@ -3456,8 +3456,8 @@ int ltfs_revalidate(bool have_write_lock, struct ltfs_volume *vol)
 			ret = -LTFS_REVAL_FAILED;
 			goto out;
 		} else if (vol->index->selfptr.partition != ltfs_dp_id(vol) &&
-			vol->index->backptr.partition == ltfs_dp_id(vol) &&
-			vol->index->backptr.block != pos.block) {
+			vol->index->full_backptr.partition == ltfs_dp_id(vol) &&
+			vol->index->full_backptr.block != pos.block) {
 			ret = -LTFS_REVAL_FAILED;
 			goto out;
 		}
@@ -3996,8 +3996,8 @@ static int _ltfs_detect_final_rec_dp(struct ltfs_volume *vol, struct tc_position
 		 * MAM points Index partition, Locate to the back pointer of IP and
 		 * read the index pointed to the back pointer
 		 */
-		seekpos.block = vol->index->backptr.block;
-		seekpos.partition = ltfs_part_id2num(vol->index->backptr.partition, vol);
+		seekpos.block = vol->index->full_backptr.block;
+		seekpos.partition = ltfs_part_id2num(vol->index->full_backptr.partition, vol);
 	} else if (dp_coh_gen == ip_coh_gen &&
 			   vol->index->generation != ip_coh_gen) {
 		/*
@@ -4443,7 +4443,7 @@ static int _ltfs_write_rao_file(char *file_path_org, unsigned char *buf, size_t 
 		ltfsmsg(LTFS_ERR, 10001E, __FILE__);
 		return -LTFS_NO_MEMORY;
 	}
-		
+
 	arch_open(&fd, path,
 		O_WRONLY | O_CREAT | O_TRUNC | O_BINARY,
 		SHARE_FLAG_DENYRW, PERMISSION_READWRITE);

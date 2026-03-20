@@ -724,7 +724,7 @@ static int _xattr_get_virtual(struct dentry *d, char *buf, size_t buf_size, cons
 		} else if (! strcmp(name, "ltfs.indexLocation")) {
 			ret = _xattr_get_tapepos(&vol->index->selfptr, &val, name);
 		} else if (! strcmp(name, "ltfs.indexPrevious")) {
-			ret = _xattr_get_tapepos(&vol->index->backptr, &val, name);
+			ret = _xattr_get_tapepos(&vol->index->full_backptr, &val, name);
 		} else if (! strcmp(name, "ltfs.indexCreator")) {
 			ret = xattr_get_string(vol->index->creator, &val, name);
 		} else if (! strcmp(name, "ltfs.labelCreator")) {

@@ -69,7 +69,7 @@
 #include "libltfs/kmi.h"
 
 #ifdef mingw_PLATFORM
-static 
+static
 #endif
 volatile char *copyright = LTFS_COPYRIGHT_0"\n"LTFS_COPYRIGHT_1"\n"LTFS_COPYRIGHT_2"\n" \
 LTFS_COPYRIGHT_3"\n"LTFS_COPYRIGHT_4"\n"LTFS_COPYRIGHT_5"\n";
@@ -1207,7 +1207,7 @@ int _rollback(struct ltfs_volume *vol, struct other_check_opts *opt, struct roll
 			if (rb->target_info->selfptr.partition == ltfs_ip_id(vol)) {
 				/* Recover from an index on index partition */
 				ltfsmsg(LTFS_INFO, 16058I);
-				ret = _rollback_dp(vol, opt, &(rb->target->backptr));
+				ret = _rollback_dp(vol, opt, &(rb->target->full_backptr));
 				if (ret != LTFSCK_NO_ERRORS)
 					return ret;
 				ret = _rollback_ip(vol, opt, &(rb->target->selfptr));

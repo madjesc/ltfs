@@ -526,7 +526,10 @@ int ltfs_fuse_releasedir(const char *path, struct fuse_file_info *fi)
 /* TODO: treat this like a regular fsync? */
 int ltfs_fuse_fsyncdir(const char *path, int flags, struct fuse_file_info *fi)
 {
+  // struct ltfs_fuse_data *priv = fuse_get_context()->private_data;
+	// struct ltfs_file_handle *file = FILEHANDLE_TO_STRUCT(fi->fh);
 	ltfs_request_trace(FUSE_REQ_ENTER(REQ_FSYNCDIR), 0, 0);
+	// file->dirty = true;
 	ltfs_request_trace(FUSE_REQ_EXIT(REQ_FSYNCDIR), 0, 0);
 	return 0;
 }

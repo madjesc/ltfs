@@ -494,13 +494,18 @@ struct index_criteria {
 };
 
 struct ltfs_index {
+  enum {
+    LTFS_FULL_INDEX,
+    LTFS_INCREMENTAL_INDEX
+  } type;
 	char *creator;                      /**< Program that wrote this index */
 	char vol_uuid[37];                  /**< LTFS volume UUID */
 	struct ltfs_name volume_name;       /**< human-readable volume name */
 	unsigned int generation;            /**< last generation number written to tape */
 	struct ltfs_timespec mod_time;      /**< time of last modification */
 	struct tape_offset selfptr;         /**< self-pointer (where this index was recovered from tape) */
-	struct tape_offset backptr;         /**< back pointer (to prior generation on data partition) */
+	struct tape_offset full_backptr;         /**< back pointer (to prior generation on data partition) */
+	struct tape_offset incremental_backptr;         /**< back pointer (to prior generation on data partition) */
 
 	/* NOTE: index criteria are accessed without locking, so updates are not thread-safe */
 	bool criteria_allow_update;              /**< Can the index criteria be changed? */

@@ -32,3 +32,6 @@ GTAGS
 TAGS
 tags
 *~
+
+.cache
+compile_commands.json

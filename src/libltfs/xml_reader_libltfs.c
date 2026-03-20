@@ -1597,7 +1597,7 @@ static int _xml_parse_schema(xmlTextReaderPtr reader, struct ltfs_index *idx, st
 		else if (!strcmp(name, "previousgenerationlocation")) {
 			check_optional_tag(0);
 			assert_not_empty();
-			if (_xml_parse_tapepos(reader, "previousgenerationlocation", &idx->backptr) < 0)
+			if (_xml_parse_tapepos(reader, "previousgenerationlocation", &idx->full_backptr) < 0)
 				return -LTFS_XML_WRONG_LOC_PREV;
 
 		} else if (! strcmp(name, "dataplacementpolicy")) {

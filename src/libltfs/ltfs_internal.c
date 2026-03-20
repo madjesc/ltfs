@@ -446,17 +446,17 @@ int ltfs_read_index(uint64_t eod_pos, bool recover_symlink, struct ltfs_volume *
 	}
 
 	/* basic back pointer checks */
-	if (vol->index->backptr.partition != 0 &&
-		vol->index->backptr.partition != vol->label->partid_dp) {
+	if (vol->index->full_backptr.partition != 0 &&
+		vol->index->full_backptr.partition != vol->label->partid_dp) {
 		ltfsmsg(LTFS_ERR, 11197E);
 		return -LTFS_INDEX_INVALID;
-	} else if (vol->index->backptr.partition == vol->index->selfptr.partition &&
+	} else if (vol->index->full_backptr.partition == vol->index->selfptr.partition &&
 		vol->index->selfptr.block != 5 &&
-		vol->index->backptr.block != vol->index->selfptr.block &&
-		vol->index->backptr.block >= vol->index->selfptr.block - 2 ) {
+		vol->index->full_backptr.block != vol->index->selfptr.block &&
+		vol->index->full_backptr.block >= vol->index->selfptr.block - 2 ) {
 		ltfsmsg(LTFS_ERR, 11197E);
 		return -LTFS_INDEX_INVALID;
-	} else if (vol->index->backptr.partition != 0 && vol->index->backptr.block < 5) {
+	} else if (vol->index->full_backptr.partition != 0 && vol->index->full_backptr.block < 5) {
 		ltfsmsg(LTFS_ERR, 11197E);
 		return -LTFS_INDEX_INVALID;
 	}
@@ -670,7 +670,7 @@ int _ltfs_check_pointers(struct ltfs_index *ip_index, struct ltfs_index *dp_inde
 	}
 
 	if (! dp_index) {
-		if (ip_index->backptr.partition != 0) {
+		if (ip_index->full_backptr.partition != 0) {
 			/* IP backpointer to nonexistent DP index file */
 			ltfsmsg(LTFS_ERR, 11205E);
 			return -LTFS_INDEX_INVALID;
@@ -682,8 +682,8 @@ int _ltfs_check_pointers(struct ltfs_index *ip_index, struct ltfs_index *dp_inde
 	/* have both index files */
 	} else {
 		if (ip_index->generation >= dp_index->generation &&
-			ip_index->backptr.partition == dp_index->selfptr.partition &&
-			ip_index->backptr.block == dp_index->selfptr.block) {
+			ip_index->full_backptr.partition == dp_index->selfptr.partition &&
+			ip_index->full_backptr.block == dp_index->selfptr.block) {
 			/* IP index file is newer */
 			return 0;
 		} else if (ip_index->generation > dp_index->generation) {
@@ -691,13 +691,13 @@ int _ltfs_check_pointers(struct ltfs_index *ip_index, struct ltfs_index *dp_inde
 			ltfsmsg(LTFS_ERR, 11206E);
 			return -LTFS_INDEX_INVALID;
 		} else if (ip_index->generation == dp_index->generation &&
-				   ip_index->backptr.partition == 0) {
+				   ip_index->full_backptr.partition == 0) {
 			/* DP index file is newer */
 			return 1;
 		} else {
 			/* Check only one previous back pinter */
-			dp_backptr = dp_index->backptr.block;
-			ip_backptr = ip_index->backptr.block;
+			dp_backptr = dp_index->full_backptr.block;
+			ip_backptr = ip_index->full_backptr.block;
 			seekpos.partition = ltfs_part_id2num(vol->label->partid_dp, vol);
 			if (dp_backptr > ip_backptr) {
 				seekpos.block = dp_backptr;
@@ -707,8 +707,8 @@ int _ltfs_check_pointers(struct ltfs_index *ip_index, struct ltfs_index *dp_inde
 				ret = ltfs_read_index(0, false, vol);
 				if (ret < 0)
 					return ret;
-				dp_backptr = vol->index->backptr.block;
-				if (ip_index->backptr.partition == 0 &&
+				dp_backptr = vol->index->full_backptr.block;
+				if (ip_index->full_backptr.partition == 0 &&
 					vol->index->generation < ip_index->generation) {
 					/* IP index file is missing its back pointer */
 					ltfsmsg(LTFS_ERR, 11207E);

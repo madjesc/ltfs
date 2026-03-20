@@ -56,11 +56,14 @@
 */
 
 #include "ltfs.h"
+#include "ltfslogging.h"
 #include "xml_libltfs.h"
 #include "fs.h"
 #include "tape.h"
 #include "pathname.h"
 #include "arch/time_internal.h"
+#include <stdio.h>
+#include <sys/syslog.h>
 #ifdef mingw_PLATFORM
 #include "unicode/umachine.h"
 #include "unicode/utf8.h"
@@ -396,6 +399,10 @@ static int _xml_write_dirtree(xmlTextWriterPtr writer, struct dentry *dir,
 	HASH_SORT(dir->child_list, fs_hash_sort_by_uid);
 
 	HASH_ITER(hh, dir->child_list, list_ptr, list_tmp) {
+	  if (list_ptr->d->dirty) {
+  		syslog(LOG_WARNING, "\n%s: %d\n\n", list_ptr->d->name.name, list_ptr->d->dirty);
+  		fprintf(stderr, "\n%s: %d\n\n", list_ptr->d->name.name, list_ptr->d->dirty);
+		}
 		if (list_ptr->d->isdir) {
 
 			if (list_ptr->d->vol->index_cache_path && !strcmp(list_ptr->d->name.name, ".LTFSEE_DATA")) {
@@ -417,6 +424,7 @@ static int _xml_write_dirtree(xmlTextWriterPtr writer, struct dentry *dir,
 				} else
 					ltfsmsg(LTFS_WARN, 17247W, "sync list", list_ptr->d->vol->index_cache_path);
 			}
+
 
 			xml_mktag(_xml_write_dirtree(writer, list_ptr->d, idx, offset, sync), -1);
 
@@ -495,7 +503,11 @@ static int _xml_write_schema(xmlTextWriterPtr writer, const char *creator,
 #endif
 
 	/* write index properties */
-	xml_mktag(xmlTextWriterStartElement(writer, BAD_CAST "ltfsindex"), -1);
+	if (idx->type == LTFS_FULL_INDEX) {
+	  xml_mktag(xmlTextWriterStartElement(writer, BAD_CAST "ltfsindex"), -1);
+	} else if (idx->type == LTFS_INCREMENTAL_INDEX) {
+	  xml_mktag(xmlTextWriterStartElement(writer, BAD_CAST "ltfsincrementalindex"), -1);
+	}
 	xml_mktag(xmlTextWriterWriteAttribute(writer, BAD_CAST "version",
 		BAD_CAST LTFS_INDEX_VERSION_STR), -1);
 	xml_mktag(xmlTextWriterWriteElement(writer, BAD_CAST "creator", BAD_CAST creator), -1);
@@ -513,12 +525,21 @@ static int _xml_write_schema(xmlTextWriterPtr writer, const char *creator,
 	xml_mktag(xmlTextWriterWriteFormatElement(
 		writer, BAD_CAST "startblock", "%"PRIu64, idx->selfptr.block), -1);
 	xml_mktag(xmlTextWriterEndElement(writer), -1);
-	if (idx->backptr.block) {
+	if (idx->full_backptr.block) {
 		xml_mktag(xmlTextWriterStartElement(writer, BAD_CAST "previousgenerationlocation"), -1);
 		xml_mktag(xmlTextWriterWriteFormatElement(
-			writer, BAD_CAST "partition", "%c", idx->backptr.partition), -1);
+			writer, BAD_CAST "partition", "%c", idx->full_backptr.partition), -1);
 		xml_mktag(xmlTextWriterWriteFormatElement(
-			writer, BAD_CAST "startblock", "%"PRIu64, idx->backptr.block), -1);
+			writer, BAD_CAST "startblock", "%"PRIu64, idx->full_backptr.block), -1);
+		xml_mktag(xmlTextWriterEndElement(writer), -1);
+	}
+
+	if (idx->incremental_backptr.block) {
+		xml_mktag(xmlTextWriterStartElement(writer, BAD_CAST "previousincrementallocation"), -1);
+		xml_mktag(xmlTextWriterWriteFormatElement(
+			writer, BAD_CAST "partition", "%c", idx->full_backptr.partition), -1);
+		xml_mktag(xmlTextWriterWriteFormatElement(
+			writer, BAD_CAST "startblock", "%"PRIu64, idx->full_backptr.block), -1);
 		xml_mktag(xmlTextWriterEndElement(writer), -1);
 	}
 	xml_mktag(xmlTextWriterWriteElement(writer, BAD_CAST "allowpolicyupdate",
