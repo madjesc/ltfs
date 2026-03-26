@@ -79,7 +79,7 @@ int xml_scan_text(xmlTextReaderPtr reader, const char **value)
 		*value = "";
 	else if (type == XML_TEXT_NODE || type == XML_DTD_NODE) {
 		/* The type XML_DTD_NODE is produced if the text of the node consists of whitespace only.
-		 * Since we also actually try to get the text, this does not lead to incorrect parsing. */
+     * Since we also actually try to get the text, this does not lead to incorrect parsing. */
 		*value = (const char *)xmlTextReaderConstValue(reader);
 		if (!(*value)) {
 			ltfsmsg(LTFS_ERR, 17035E);
@@ -174,14 +174,14 @@ int xml_save_tag(xmlTextReaderPtr reader, size_t *tag_count, unsigned char ***ta
 
 #if LIBXML_VERSION < 20620
 	/* OS X 10.5 ships with an old version of libxml2 that doesn't
-	 * support xmlTextReaderReadOuterXml. */
+   * support xmlTextReaderReadOuterXml. */
 	int ret, bufsize;
 	xmlDocPtr doc;
 	xmlNodePtr node;
 	xmlBufferPtr buf;
 
 	/* NOTE: caller must do xmlFreeDoc(xmlTextReaderCurrentDoc(reader)) when parsing is
-	 * finished, as this call modifies the behavior of xmlFreeTextReader. */
+   * finished, as this call modifies the behavior of xmlFreeTextReader. */
 	doc = xmlTextReaderCurrentDoc(reader);
 	if (!doc) {
 		ltfsmsg(LTFS_ERR, 17200E, "xmlTextReaderCurrentDoc");
@@ -480,8 +480,8 @@ int xml_parse_time(bool msg, const char *fmt_time, struct ltfs_timespec *rawtime
 	tm.tm_mon -= 1;
 
 	/*
-	 * convert parsed UTC time back to Unix time.
-	 */
+   * convert parsed UTC time back to Unix time.
+   */
 	rawtime->tv_sec = ltfs_timegm(&tm);
 	ret = normalize_ltfs_time(rawtime);
 
@@ -539,7 +539,7 @@ int xml_input_tape_read_callback(void *context, char *buffer, int len)
 				return -1;
 			} else if ((size_t)nread < ctx->buf_size) {
 				/* Caught a small read. If this is a file mark, position before it. If
-				 * it's a record, look for a file mark following it. */
+         * it's a record, look for a file mark following it. */
 				ctx->saw_small_block = true;
 				if (nread == 0) {
 					ctx->saw_file_mark = true;

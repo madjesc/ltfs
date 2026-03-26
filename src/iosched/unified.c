@@ -114,49 +114,49 @@ struct dentry_priv
 	uint64_t file_size;		 /**< Real file size, including outstanding write requests */
 
 	/**
-	 * Index partition write flag. This is set if the file's name and size match the volume's
-	 * data placement criteria. If set, the scheduler writes this file's data to the index
-	 * partition and saves the resulting extents in the alt_extentlist.
-	 */
+     * Index partition write flag. This is set if the file's name and size match the volume's
+     * data placement criteria. If set, the scheduler writes this file's data to the index
+     * partition and saves the resulting extents in the alt_extentlist.
+     */
 	bool write_ip;
 
 	/**
-	 * Write error code.
-	 * Since writes are handled asynchronously, errors hit by the background thread need to be
-	 * propagated on a future request to write, flush or close. The error code is reset once
-	 * it's been propagated to the caller.
-	 * The caller needs to have (a) a write lock on priv->lock or (b) a read lock on priv->lock
-	 * plus a lock on dentry->iosched_lock before taking the write_error_lock.
-	 * Never take any other locks while holding write_error_lock.
-	 */
+     * Write error code.
+     * Since writes are handled asynchronously, errors hit by the background thread need to be
+     * propagated on a future request to write, flush or close. The error code is reset once
+     * it's been propagated to the caller.
+     * The caller needs to have (a) a write lock on priv->lock or (b) a read lock on priv->lock
+     * plus a lock on dentry->iosched_lock before taking the write_error_lock.
+     * Never take any other locks while holding write_error_lock.
+     */
 	int write_error;
 	ltfs_mutex_t write_error_lock;
 
 	/* Linked list membership flags and pointers.
-	 * Depending on the type of requests this dentry_priv contains, it may belong to one or
-	 * more lists: the working set, the data writer queue, and the index writer queue.
-	 * The 'in_' counters reflect the number of requests attached to each of the corresponding
-	 * lists.
-	 */
+     * Depending on the type of requests this dentry_priv contains, it may belong to one or
+     * more lists: the working set, the data writer queue, and the index writer queue.
+     * The 'in_' counters reflect the number of requests attached to each of the corresponding
+     * lists.
+     */
 	uint32_t in_working_set, in_dp_queue, in_ip_queue;
 	TAILQ_ENTRY(dentry_priv) working_set;
 	TAILQ_ENTRY(dentry_priv) dp_queue;
 	TAILQ_ENTRY(dentry_priv) ip_queue;
 
 	/** Pointer for alternate (IP) extent queue. If this dentry_priv has a non-empty
-	 * alt_extentlist, it is placed in the ext_queue. It is removed from the ext_queue when
-	 * write_ip is unset or when the alt_extentlist is pushed to libltfs. */
+     * alt_extentlist, it is placed in the ext_queue. It is removed from the ext_queue when
+     * write_ip is unset or when the alt_extentlist is pushed to libltfs. */
 	TAILQ_ENTRY(dentry_priv) ext_queue;
 
 	/** List of write requests, sorted by offset */
 	TAILQ_HEAD(req_struct, write_request) requests;
 
 	/**
-	 * List of index partition extents. These will be inserted into the file's real extent
-	 * list when all handles to it are closed, provided that the file still matches the
-	 * data placement criteria at that time.
-	 * A dentry_priv is placed in the ext_queue if and only if it has extents in this list.
-	 */
+     * List of index partition extents. These will be inserted into the file's real extent
+     * list when all handles to it are closed, provided that the file still matches the
+     * data placement criteria at that time.
+     * A dentry_priv is placed in the ext_queue if and only if it has extents in this list.
+     */
 	TAILQ_HEAD(ext_struct, extent_info) alt_extentlist;
 };
 
@@ -166,20 +166,20 @@ struct dentry_priv
 struct unified_data
 {
 	/**
-	 * Global scheduler lock. Any thread working on scheduler data structures must take this lock
-	 * for read. Taking this lock for write will stop all other scheduler activity, which
-	 * is useful when performing operations that could cause serious tape contention
-	 * (e.g. an index partition write or a full flush).
-	 */
+     * Global scheduler lock. Any thread working on scheduler data structures must take this lock
+     * for read. Taking this lock for write will stop all other scheduler activity, which
+     * is useful when performing operations that could cause serious tape contention
+     * (e.g. an index partition write or a full flush).
+     */
 	MultiReaderSingleWriter lock;
 
 	/**
-	 * Cache allocation lock. Take this lock before making calls into the cache manager.
-	 * Note: because it is accessed by the background thread, the cache_requests variable
-	 * is protected by queue_lock, NOT by cache_lock!
-	 * It is okay to take the queue_lock while holding this lock. Do not take any other locks
-	 * while holding this lock.
-	 */
+     * Cache allocation lock. Take this lock before making calls into the cache manager.
+     * Note: because it is accessed by the background thread, the cache_requests variable
+     * is protected by queue_lock, NOT by cache_lock!
+     * It is okay to take the queue_lock while holding this lock. Do not take any other locks
+     * while holding this lock.
+     */
 	ltfs_thread_mutex_t cache_lock;
 	ltfs_thread_cond_t cache_cond; /**< Signal this variable when a cache block becomes available */
 	uint32_t cache_requests;			 /**< Number of threads waiting for a cache block */
@@ -187,31 +187,31 @@ struct unified_data
 	size_t cache_blocks;					 /**< Maximum cache block count */
 
 	/**
-	 * dentry_priv queue lock.
-	 * Take this before manipulating the working_set, dp_queue and ip_queue lists
-	 * or the corresponding request counters. Do not take the sched_lock or any dentry_priv lock
-	 * while holding this lock.
-	 */
+     * dentry_priv queue lock.
+     * Take this before manipulating the working_set, dp_queue and ip_queue lists
+     * or the corresponding request counters. Do not take the sched_lock or any dentry_priv lock
+     * while holding this lock.
+     */
 	ltfs_thread_mutex_t queue_lock;
 	ltfs_thread_cond_t queue_cond; /**< Signal this variable when the dentry_priv lists are modified */
 
 	/* Lists of dentry_priv structures. Note that each dentry_priv may be in more than one of
-	 * these lists. */
+     * these lists. */
 	TAILQ_HEAD(workingset_struct, dentry_priv) working_set; /**< Files with partial requests */
 	TAILQ_HEAD(writequeue_struct, dentry_priv) dp_queue;		/**< Files with full (DP) requests */
 	TAILQ_HEAD(indexqueue_struct, dentry_priv) ip_queue;		/**< Files with IP requests */
 	TAILQ_HEAD(extqueue_struct, dentry_priv) ext_queue;			/**< Files with dirty IP extents */
 
 	/* Queue lengths. These variables count the number of dentry_privs in each queue, not the
-	 * number of requests in each state.
-	 */
+     * number of requests in each state.
+     */
 	uint32_t ws_count; /**< Number of entries in the working_set */
 	uint32_t dp_count; /**< Number of entries in the dp_queue */
 	uint32_t ip_count; /**< Number of entries in the ip_queue */
 
 	/* Counters for various types of requests.
-	 * NOTE: these variables count write_requests, not dentry_priv structures, so they
-	 * DO NOT equal the lengths of the working_set/dp_queue/ip_queue lists! */
+     * NOTE: these variables count write_requests, not dentry_priv structures, so they
+     * DO NOT equal the lengths of the working_set/dp_queue/ip_queue lists! */
 	uint32_t ws_request_count;	 /**< Number of requests in REQUEST_PARTIAL state */
 	uint32_t dp_request_count;	 /**< Number of requests in REQUEST_DP state which will NOT change to IP state */
 	uint32_t ip_request_count;	 /**< Number of requests in REQUEST_IP state */
@@ -305,7 +305,7 @@ void *unified_init(struct ltfs_volume *vol)
 	}
 
 	/* Initialize mutexes and condition variables.
-	 * These calls never fail on Linux, but they can fail on OS X. */
+   * These calls never fail on Linux, but they can fail on OS X. */
 	ret = ltfs_thread_mutex_init(&priv->cache_lock);
 	if (ret) {
 		/* Cannot initialize scheduler: failed to initialize mutex %s (%d) */
@@ -480,7 +480,7 @@ int unified_close(struct dentry *d, bool flush, void *iosched_handle)
 	releaseread_mrsw(&priv->lock);
 
 	/* No need to hold any scheduler locks when closing the file. All writes which were
-	 * outstanding when the close request started have been issued. */
+   * outstanding when the close request started have been issued. */
 	ltfs_fsraw_close(d);
 	ltfs_profiler_add_entry(priv->profiler, &priv->proflock, IOSCHED_REQ_EXIT(REQ_IOS_CLOSE));
 	return ret ? ret : write_error ? write_error : 0;
@@ -546,7 +546,7 @@ ssize_t unified_read(struct dentry *d, char *buf, size_t size, off_t offset, voi
 	}
 
 	/* Check for cached write data, queueing up read requests for any holes in the write
-	 * request queue. */
+   * request queue. */
 	TAILQ_FOREACH(req, &dpr->requests, list)
 	{
 		/* Need to get more bytes before looking at this request? */
@@ -618,9 +618,9 @@ ssize_t unified_read(struct dentry *d, char *buf, size_t size, off_t offset, voi
 			}
 
 			/* We know the requested section of the file sits before an existing outstanding
-			 * write request. If libltfs didn't return rreq->count bytes, then that outstanding
-			 * write is past libltfs' EOF. In that case, the file will eventually be truncated
-			 * out, so fill any unused portion of this read request with zeros. */
+       * write request. If libltfs didn't return rreq->count bytes, then that outstanding
+       * write is past libltfs' EOF. In that case, the file will eventually be truncated
+       * out, so fill any unused portion of this read request with zeros. */
 			if (to_read > 0) memset(rreq->buf + nread, 0, to_read);
 
 			free(rreq);
@@ -628,8 +628,8 @@ ssize_t unified_read(struct dentry *d, char *buf, size_t size, off_t offset, voi
 	}
 
 	/* The code above issues libltfs reads for parts of the file that are uncached but sit
-	 * before or within the file offset range covered by the request list. Still need to
-	 * handle the part of the read request that lies past the end of the request list. */
+   * before or within the file offset range covered by the request list. Still need to
+   * handle the part of the read request that lies past the end of the request list. */
 	if (size > 0) {
 		if (!have_io_lock) {
 			ltfs_mutex_lock(&dpr->io_lock);
@@ -752,7 +752,7 @@ do_append:
 	}
 
 	/* Special case: avoid traversing the request list if writing past the end.
-	 * This makes sequential writes O(1). */
+   * This makes sequential writes O(1). */
 	if (offset >= last_offset) {
 		/* Try to append data to an existing request buffer */
 		if (req && req->count < priv->cache_size && offset == last_offset && req->state != REQUEST_IP) {
@@ -800,13 +800,13 @@ do_append:
 		}
 
 		/* Merge the current request into the previous one. Resolve any overlap between
-		 * the requests using bytes from the previous request. */
+     * the requests using bytes from the previous request. */
 		did_merge = _unified_merge_requests(prev_req, req, &spare_cache, dpr, priv);
 		if (did_merge == 2) continue; /* req was freed */
 
 		/* Handle overlaps between the new write and the current request. If the current request
-		 * is targeted at the DP, update it with new bytes. If the current request is targeted
-		 * at the IP, truncate or remove it. */
+     * is targeted at the DP, update it with new bytes. If the current request is targeted
+     * at the IP, truncate or remove it. */
 		if (size > 0) {
 			req_cache = cache_manager_get_object_data(req->write_cache);
 
@@ -878,7 +878,7 @@ out:
 	if (ret >= 0) {
 		int err = ltfs_get_volume_lock(false, priv->vol);
 		/* It's undesirable to fail the write here, as we have no way to roll back the cache
-		 * to its previous state. There's no harm in ignoring revalidation errors at this point. */
+     * to its previous state. There's no harm in ignoring revalidation errors at this point. */
 		if (err == 0) {
 			if (isupdatetime) {
 				acquirewrite_mrsw(&d->meta_lock);
@@ -996,7 +996,7 @@ int unified_truncate(struct dentry *d, off_t length, void *iosched_handle)
 		releaseread_mrsw(&d->meta_lock);
 
 		/* Only reset write_ip if the new size is 0 (complete rewrite) to avoid interleaving
-		 * DP and IP extents in a single file. */
+     * DP and IP extents in a single file. */
 		if (!dpr->write_ip && max_filesize > 0 && length == 0 && matches_name_criteria && !deleted)
 			_unified_set_write_ip(dpr, priv);
 		else if (dpr->write_ip && (dpr->file_size > max_filesize || !matches_name_criteria || deleted))
@@ -1177,7 +1177,7 @@ void _unified_process_index_queue(struct unified_data *priv)
 	TAILQ_FOREACH_SAFE(dentry_priv, &priv->ip_queue, ip_queue, dpr_aux)
 	{
 		/* Remove dentry_priv from the IP queue, process its IP requests,
-		 * then free it if the request list is empty. */
+     * then free it if the request list is empty. */
 		_unified_update_queue_membership(false, true, REQUEST_IP, dentry_priv, priv);
 
 		TAILQ_FOREACH_SAFE(req, &dentry_priv->requests, list, req_aux)
@@ -1232,9 +1232,9 @@ void _unified_process_data_queue(enum request_state queue, struct unified_data *
 	ltfs_thread_mutex_unlock(&priv->queue_lock);
 
 	/*
-	 * Process only the 'count' entries that are known to be in the queue.
-	 * This is needed to guarantee a limited runtime.
-	 */
+   * Process only the 'count' entries that are known to be in the queue.
+   * This is needed to guarantee a limited runtime.
+   */
 	for (i = 0; i < count; ++i) {
 		struct dentry *dentry;
 		struct dentry_priv *dentry_priv;
@@ -1472,9 +1472,9 @@ void _unified_update_alt_extentlist(struct extent_info *newext, struct dentry_pr
 
 			} else {
 				/* To achieve maximum compactness, entry should be split here and newext should
-				 * be inserted between the two parts. Instead, to avoid allocating memory, just
-				 * skip entry. newext will be inserted after entry, which maintains correctness
-				 * despite the increased memory usage. */
+         * be inserted between the two parts. Instead, to avoid allocating memory, just
+         * skip entry. newext will be inserted after entry, which maintains correctness
+         * despite the increased memory usage. */
 				continue;
 			}
 
@@ -1876,8 +1876,8 @@ int _unified_merge_requests(struct write_request *dest,
 	copy_offset = (dest->offset + dest->count) - src->offset;
 
 	/* Append bytes to the previous request.
-	 * Merging requests this way is only allowed if the two requests have the same
-	 * target partition: otherwise some bytes would get written to the DP more than once. */
+   * Merging requests this way is only allowed if the two requests have the same
+   * target partition: otherwise some bytes would get written to the DP more than once. */
 	if (dest->state != src->state && (dest->state == REQUEST_IP || src->state == REQUEST_IP))
 		copy_count = 0;
 	else if (dest->count < priv->cache_size && src->count > copy_offset)
@@ -2132,7 +2132,7 @@ void _unified_unset_write_ip(struct dentry_priv *dpr, struct unified_data *priv)
 		}
 
 		/* Decrement reference count: it was incremented when this dentry_priv was added
-		 * to the ip_queue. */
+     * to the ip_queue. */
 		_unified_update_queue_membership(false, true, REQUEST_IP, dpr, priv);
 	}
 
@@ -2172,9 +2172,9 @@ void _unified_handle_write_error(ssize_t write_ret,
 	bool clear_dp = false, clear_ip = false;
 
 	/* Propagate the write error to the caller, UNLESS we were writing to the IP and encountered
-	 * an out of space error. That is not a hard failure, as the data is known to be on the DP
-	 * at that point. Other IP errors are worth reporting because they may affect LTFS' ability
-	 * to make the volume consistent. */
+   * an out of space error. That is not a hard failure, as the data is known to be on the DP
+   * at that point. Other IP errors are worth reporting because they may affect LTFS' ability
+   * to make the volume consistent. */
 	if (!(failed_req->state == REQUEST_IP && (write_ret == -LTFS_NO_SPACE || write_ret == -LTFS_LESS_SPACE))) {
 		ltfs_mutex_lock(&dpr->write_error_lock);
 		if (dpr->write_error == 0) dpr->write_error = write_ret;
@@ -2182,8 +2182,8 @@ void _unified_handle_write_error(ssize_t write_ret,
 	}
 
 	/* Clear requests for the partition that experienced the error. Also clear requests
-	 * for the other partition if the file system is in read-only mode or if the other
-	 * partition is known to be out of space. */
+   * for the other partition if the file system is in read-only mode or if the other
+   * partition is known to be out of space. */
 	if (failed_req->state == REQUEST_IP) {
 		clear_ip = true;
 		if ((write_ret != -LTFS_NO_SPACE && write_ret != -LTFS_LESS_SPACE) ||
@@ -2360,18 +2360,4 @@ struct iosched_ops unified_ops = {
 struct iosched_ops *iosched_get_ops(void)
 {
 	return &unified_ops;
-}
-
-#ifndef mingw_PLATFORM
-extern char iosched_unified_dat[];
-#endif
-
-const char *iosched_get_message_bundle_name(void **message_data)
-{
-#ifndef mingw_PLATFORM
-	*message_data = iosched_unified_dat;
-#else
-	*message_data = NULL;
-#endif
-	return "iosched_unified";
 }

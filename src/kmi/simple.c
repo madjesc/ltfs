@@ -222,17 +222,3 @@ struct kmi_ops *kmi_get_ops(void)
 {
 	return &simple_ops;
 }
-
-#ifndef mingw_PLATFORM
-extern char kmi_simple_dat[];
-#endif
-
-const char *kmi_get_message_bundle_name(void **const message_data)
-{
-#ifndef mingw_PLATFORM
-	*message_data = kmi_simple_dat;
-#else
-	*message_data = NULL;
-#endif
-	return "kmi_simple";
-}

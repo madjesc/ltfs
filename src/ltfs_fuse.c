@@ -326,7 +326,7 @@ int ltfs_fuse_statfs(const char *path, struct statvfs *buf)
 	memcpy(buf, stats, sizeof(struct statvfs));
 
 	/* With MacFUSE, we use an f_frsize not equal to the file system block size.
-	 * Need to adjust the block counts so they're in units of the reported f_frsize. */
+   * Need to adjust the block counts so they're in units of the reported f_frsize. */
 	double scale = ltfs_get_blocksize(priv->data) / (double)stats->f_frsize;
 	buf->f_blocks *= scale;
 	buf->f_bfree *= scale;
@@ -384,10 +384,10 @@ int ltfs_fuse_open(const char *path, struct fuse_file_info *fi)
 
 #ifdef __APPLE__
 	/* Comment from MacFUSE author about direct_io on OSX:
-     * direct_io is a rather abnormal mode of operation from Mac OS X's
-     * standpoint. Unless your file system requires this mode, I wouldn't
-     * recommend using this option.
-     */
+   * direct_io is a rather abnormal mode of operation from Mac OS X's
+   * standpoint. Unless your file system requires this mode, I wouldn't
+   * recommend using this option.
+   */
 	fi->direct_io = 0;
 	fi->keep_cache = 0;
 #else
@@ -397,7 +397,7 @@ int ltfs_fuse_open(const char *path, struct fuse_file_info *fi)
 	fi->keep_cache = 0;
 #	else
 	/* cannot set keep cache if any process has the file open with direct_io set! so only
-	 * set it on newer FUSE versions, where we don't use direct_io. */
+   * set it on newer FUSE versions, where we don't use direct_io. */
 	fi->direct_io = 0;
 	fi->keep_cache = 1;
 #	endif
@@ -678,10 +678,10 @@ int ltfs_fuse_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 
 #ifdef __APPLE__
 	/* Comment from MacFUSE author about direct_io on OSX:
-     * direct_io is a rather abnormal mode of operation from Mac OS X's
-     * standpoint. Unless your file system requires this mode, I wouldn't
-     * recommend using this option.
-     */
+   * direct_io is a rather abnormal mode of operation from Mac OS X's
+   * standpoint. Unless your file system requires this mode, I wouldn't
+   * recommend using this option.
+   */
 	fi->direct_io = 0;
 	fi->keep_cache = 0;
 #else
@@ -691,7 +691,7 @@ int ltfs_fuse_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 	fi->keep_cache = 0;
 #	else
 	/* cannot set keep cache if any process has the file open with direct_io set! so only
-	 * set it on newer FUSE versions, where we don't use direct_io. */
+   * set it on newer FUSE versions, where we don't use direct_io. */
 	fi->direct_io = 0;
 	fi->keep_cache = 1;
 #	endif
@@ -932,9 +932,9 @@ int ltfs_fuse_setxattr(const char *path, const char *name, const char *value, si
 	ltfsmsg(LTFS_DEBUG3, 14050D, path, name, size);
 
 	/* position argument is only supported for resource forks
-	 * on OS X, and we have no resource forks
-	 * TODO: is it correct to behave this way?
-	 */
+   * on OS X, and we have no resource forks
+   * TODO: is it correct to behave this way?
+   */
 #ifdef __APPLE__
 	if (position) {
 		/* Position argument must be zero */
@@ -966,9 +966,9 @@ int ltfs_fuse_getxattr(const char *path, const char *name, char *value, size_t s
 	ltfsmsg(LTFS_DEBUG3, 14051D, path, name);
 
 	/* position argument is only supported for resource forks
-	 * on OS X, and we have no resource forks
-	 * TODO: is it correct to behave this way?
-	 */
+   * on OS X, and we have no resource forks
+   * TODO: is it correct to behave this way?
+   */
 #ifdef __APPLE__
 	if (position) {
 		/* Position argument must be zero */
@@ -978,7 +978,7 @@ int ltfs_fuse_getxattr(const char *path, const char *name, char *value, size_t s
 	}
 #else
 	/* Short-circuit requests for system EAs to avoid mounting the same unnecessarily in
-	 * library mode. */
+   * library mode. */
 	if (strstr(name, "system.") == name || strstr(name, "security.") == name) {
 		ltfs_request_trace(FUSE_REQ_EXIT(REQ_GETXATTR), -LTFS_NO_XATTR, 0);
 		return errormap_fuse_error(-LTFS_NO_XATTR);
@@ -1039,21 +1039,21 @@ void *ltfs_fuse_mount(struct fuse_conn_info *conn)
 
 	if (priv->pid_orig != getpid()) {
 		/*
-		 * Reopen device when LTFS was forked in fuse_main().
-		 * Backend must handle reopen correctly if it sis needed.
-		 * For example, iokit backend must handle reopen. But ibmtape backend
-		 * doesn't need handle reopen because file descriptor is took over to a child
-		 * process.
-		 */
+     * Reopen device when LTFS was forked in fuse_main().
+     * Backend must handle reopen correctly if it sis needed.
+     * For example, iokit backend must handle reopen. But ibmtape backend
+     * doesn't need handle reopen because file descriptor is took over to a child
+     * process.
+     */
 		ltfs_device_reopen(priv->devname, priv->data);
 	}
 
 #ifndef mingw_PLATFORM
 	/*
-	 * Open the I/O scheduler, if one has been specified by the user.
-	 * Please note that when we run in library mode the I/O scheduler
-	 * is loaded individually for each mounted volume.
-	 */
+   * Open the I/O scheduler, if one has been specified by the user.
+   * Please note that when we run in library mode the I/O scheduler
+   * is loaded individually for each mounted volume.
+   */
 	if (iosched_init(&priv->iosched_plugin, priv->data) < 0) {
 		/* I/O scheduler disabled. Performance down, memory usage up. */
 		ltfsmsg(LTFS_WARN, 14028W);
@@ -1063,7 +1063,7 @@ void *ltfs_fuse_mount(struct fuse_conn_info *conn)
 	stats->f_bsize = ltfs_get_blocksize(priv->data); /* Filesystem optimal transfer block size */
 
 	/* Filesystem fragment size. Linux allows any f_frsize, whereas OS X (with MacFUSE) expects
-	 * a power of 2 between 512 and 131072. */
+   * a power of 2 between 512 and 131072. */
 #	ifdef __APPLE__
 	int nshift;
 
@@ -1083,8 +1083,8 @@ void *ltfs_fuse_mount(struct fuse_conn_info *conn)
 	}
 
 	/* Having f_bsize different from f_frsize should technically be okay, but it
-	 * seems that many (most?) programs don't understand the difference. So the only
-	 * way to get consistent space usage results is to make them the same. */
+   * seems that many (most?) programs don't understand the difference. So the only
+   * way to get consistent space usage results is to make them the same. */
 	stats->f_bsize = stats->f_frsize;
 #	else
 	stats->f_frsize = stats->f_bsize;
@@ -1119,10 +1119,10 @@ void ltfs_fuse_umount(void *userdata)
 	if (periodic_sync_thread_initialized(priv->data)) periodic_sync_thread_destroy(priv->data);
 
 	/*
-	 * Destroy the I/O scheduler, if one has been specified by the user.
-	 * Please note that when we run in library mode the I/O scheduler
-	 * is destroyed individually for each mounted volume.
-	 */
+   * Destroy the I/O scheduler, if one has been specified by the user.
+   * Please note that when we run in library mode the I/O scheduler
+   * is destroyed individually for each mounted volume.
+   */
 	ltfs_fsops_flush(NULL, true, priv->data);
 	if (iosched_initialized(priv->data)) iosched_destroy(priv->data);
 

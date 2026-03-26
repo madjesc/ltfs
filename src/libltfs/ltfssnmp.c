@@ -68,6 +68,7 @@ struct trap_entry
 	TAILQ_ENTRY(trap_entry) list;
 	char *id;
 };
+
 TAILQ_HEAD(trap_struct, trap_entry) trap_entries;
 
 bool is_snmp_enabled()

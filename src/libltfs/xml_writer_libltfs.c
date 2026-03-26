@@ -82,10 +82,10 @@ static int encode_entry_name(char **new_name, const char *name)
 	UChar32 c = 0;
 
 	/* Printable ASCII characters
-	 * !\"#$&`'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-	 *
-	 * In this encoding, only `:` and `%` is encoded in this printable character set
-	 */
+   * !\"#$&`'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+   *
+   * In this encoding, only `:` and `%` is encoded in this printable character set
+   */
 	static char plain_chars[] =
 			"!\"#$&`'()*+,-./0123456789;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 	char *tmp_name;
@@ -480,7 +480,7 @@ static int _xml_write_schema(xmlTextWriterPtr writer, const char *creator, const
 
 	xmlTextWriterSetIndent(writer, 1);
 	/* Define INDENT_INDEXES to write Indexes to tape with full indentation.
-	 * This is normally a waste of space, but it may be useful for debugging. */
+   * This is normally a waste of space, but it may be useful for debugging. */
 #ifdef INDENT_INDEXES
 	xmlTextWriterSetIndentString(writer, BAD_CAST "    ");
 #else
@@ -866,9 +866,9 @@ int xml_schema_to_tape(char *reason, struct ltfs_volume *vol)
 			ret = tape_write_filemark(vol->device, 1, true, true, immed);
 			if (!ret) {
 				/*
-				 * All buffered data, new index and following FM is written on tape correctly.
-				 * It's time to unveil the offset cache and sync cache to other programs.
-				 */
+         * All buffered data, new index and following FM is written on tape correctly.
+         * It's time to unveil the offset cache and sync cache to other programs.
+         */
 				if (vol->index_cache_path) _commit_offset_caches(vol->index_cache_path, vol->index);
 			} else {
 				ltfsmsg(LTFS_ERR, 11084E, ret);

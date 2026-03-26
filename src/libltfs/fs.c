@@ -296,7 +296,7 @@ struct dentry *fs_allocate_dentry(struct dentry *parent,
 		}
 	} else {
 		/* Currently, it can be assumed that one of these names should
-		   be NULL. The codes below are just in case. */
+       be NULL. The codes below are just in case. */
 		d->name.name = arch_strdup(name);
 		d->platform_safe_name = arch_strdup(platform_safe_name);
 		if (!d->name.name || !d->platform_safe_name) {
@@ -536,7 +536,7 @@ int fs_path_lookup(const char *path, int flags, struct dentry **dentry, struct l
 	}
 
 	/* Get a reference count on the root dentry. Either it will be returned immediately, or it
-	 * will be disposed later after the first path lookup. */
+   * will be disposed later after the first path lookup. */
 	acquirewrite_mrsw(&idx->root->meta_lock);
 	++idx->root->numhandles;
 	releasewrite_mrsw(&idx->root->meta_lock);
@@ -577,9 +577,9 @@ int fs_path_lookup(const char *path, int flags, struct dentry **dentry, struct l
 		}
 
 		/* Release the parent if we aren't keeping any locks on it.
-		 * Since we know 'parent' has a child (d), it's guaranteed that parent is still linked
-		 * into the file system tree. Therefore, fs_release_dentry is just a fancy way of
-		 * decrementing the handle count... so do that. */
+     * Since we know 'parent' has a child (d), it's guaranteed that parent is still linked
+     * into the file system tree. Therefore, fs_release_dentry is just a fancy way of
+     * decrementing the handle count... so do that. */
 		if (end || !(flags & (LOCK_PARENT_CONTENTS_W | LOCK_PARENT_CONTENTS_R | LOCK_PARENT_META_W | LOCK_PARENT_META_R))) {
 			acquirewrite_mrsw(&parent->meta_lock);
 			--parent->numhandles;

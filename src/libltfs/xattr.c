@@ -318,7 +318,7 @@ static int _xattr_lock_dentry(const char *name, bool modify, struct dentry *d, s
 	}
 
 	/* Other EAs either need no additional locks, or they need the meta_lock.
-	 * The caller is responsible for taking the meta_lock as necessary. */
+   * The caller is responsible for taking the meta_lock as necessary. */
 	return 0;
 }
 
@@ -1355,7 +1355,7 @@ int xattr_set(struct dentry *d, const char *name, const char *value, size_t size
 	}
 
 	/* In the future, there could be user-writeable reserved xattrs. For now, just deny
-	 * writes to all reserved xattrs not covered by the user-writeable virtual xattrs above. */
+   * writes to all reserved xattrs not covered by the user-writeable virtual xattrs above. */
 	if (strcasestr(name, "ltfs") == name && !_xattr_is_stored_vea(name) && !_xattr_is_worm_ea(name)) {
 		ret = -LTFS_RDONLY_XATTR;
 		goto out_unlock;
@@ -1551,12 +1551,12 @@ int xattr_list(struct dentry *d, char *list, size_t size, struct ltfs_volume *vo
 	nbytes += ret;
 
 	/*
-	 * There used to be an _xattr_list_virtuals function which was called here.
-	 * Listing virtual xattrs causes problems with files copied from LTFS to another filesystem
-	 * which are attempted to be brought back. Since the copy utility may also copy the
-	 * reserved virtual extended attributes, the copy operation will fail with permission
-	 * denied problems.
-	 */
+   * There used to be an _xattr_list_virtuals function which was called here.
+   * Listing virtual xattrs causes problems with files copied from LTFS to another filesystem
+   * which are attempted to be brought back. Since the copy utility may also copy the
+   * reserved virtual extended attributes, the copy operation will fail with permission
+   * denied problems.
+   */
 
 	/* Was the buffer large enough? */
 	if (size && (size_t)nbytes > size) ret = -LTFS_SMALL_BUFFER;

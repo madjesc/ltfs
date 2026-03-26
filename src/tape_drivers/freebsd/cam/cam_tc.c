@@ -87,7 +87,7 @@
 /*
  * Prototypes for opening the SA (Sequential Access) and pass (Pass Through)
  * device drivers on FreeBSD
-*/
+ */
 int open_sa_pass(struct camtape_data *softc, const char *saDeviceName);
 
 int open_sa_device(struct camtape_data *softc, const char *saDeviceName);
@@ -250,12 +250,12 @@ int camtape_open(const char *devname, void **handle)
 	*handle = NULL;
 
 	/*
-	 * XXX KDM check to see whether the sa(4) driver has required features.
-	 * ret =  camtape_check_lin_tape_version();
-	 * if (ret != DEVICE_GOOD) {
-	 * return ret;
- 	 *  }
-	 */
+   * XXX KDM check to see whether the sa(4) driver has required features.
+   * ret =  camtape_check_lin_tape_version();
+   * if (ret != DEVICE_GOOD) {
+   * return ret;
+   *  }
+   */
 
 	ltfsmsg(LTFS_INFO, 31223I, devname);
 
@@ -407,9 +407,9 @@ int camtape_is_connected(const char *devname)
 	int ret = 0;
 
 	/*
-	 * We assume that /dev is handled by a daemon such as Udev and that
-	 * device entries are automatically removed and added upon hotplug events.
-	 */
+   * We assume that /dev is handled by a daemon such as Udev and that
+   * device entries are automatically removed and added upon hotplug events.
+   */
 	ret = stat(devname, &statbuf);
 	return ret;
 }
@@ -460,10 +460,10 @@ int camtape_read(void *device, char *buf, size_t count, struct tc_position *pos,
 	size_t datacount = count;
 
 	/*
-	 * TODO: Check count is smaller than max of SSIZE_MAX
-	 *       The prototype of read system call is
-	 *       ssize_t read(int fd, void *buf, size_t count);
-	 */
+   * TODO: Check count is smaller than max of SSIZE_MAX
+   *       The prototype of read system call is
+   *       ssize_t read(int fd, void *buf, size_t count);
+   */
 
 	ltfs_profiler_add_entry(softc->profiler, NULL, TAPEBEND_REQ_ENTER(REQ_TC_READ));
 	ltfsmsg(LTFS_DEBUG3, 31395D, "read", count, softc->drive_serial);
@@ -589,10 +589,10 @@ int camtape_write(void *device, const char *buf, size_t count, struct tc_positio
 	size_t datacount = count;
 
 	/*
-	 * TODO: Check count is smaller than max of SSIZE_MAX
-	 *       The prototype of write system call is
-	 *       ssize_t write(int fd, const void *buf, size_t count);
-	 */
+   * TODO: Check count is smaller than max of SSIZE_MAX
+   *       The prototype of write system call is
+   *       ssize_t write(int fd, const void *buf, size_t count);
+   */
 
 	ltfs_profiler_add_entry(softc->profiler, NULL, TAPEBEND_REQ_ENTER(REQ_TC_WRITE));
 	ltfsmsg(LTFS_DEBUG, 31395D, "write", count, ((struct camtape_data *)device)->drive_serial);
@@ -625,30 +625,30 @@ retry_write:
 	errno = 0;
 
 	/*
-	 * Note that we assume here that our write cannot be broken into multiple pieces.  If it
-	 * can, then we may have indeterminate results because it isn't possible to get both an
-	 * error and a residual count here.  We get one or the other.
-	 */
+   * Note that we assume here that our write cannot be broken into multiple pieces.  If it
+   * can, then we may have indeterminate results because it isn't possible to get both an
+   * error and a residual count here.  We get one or the other.
+   */
 	written = write(fd, buf, datacount);
 	if ((size_t)written != datacount) {
 		ltfsmsg(LTFS_INFO, 31208I, "WRITE", count, written, errno, softc->drive_serial);
 
 		if (written == -1) {
 			/*
-			 * We only get an error when a write actually fails.  The Linux backend also checks
-			 * for ENOMEM and retries a number of times.  Note that ENOMEM is returned for
-			 * memory allocation failures inside the Linux kernel, and isn't returned for I/O
-			 * failures from the tape drive.  In FreeBSD, if any memory allocation is needed in
-			 * the write path, we do a blocking allocation that will sleep until it has memory.
-			 * So, the only failures we'll see here are failures that come from the tape drive.
-			 */
+       * We only get an error when a write actually fails.  The Linux backend also checks
+       * for ENOMEM and retries a number of times.  Note that ENOMEM is returned for
+       * memory allocation failures inside the Linux kernel, and isn't returned for I/O
+       * failures from the tape drive.  In FreeBSD, if any memory allocation is needed in
+       * the write path, we do a blocking allocation that will sleep until it has memory.
+       * So, the only failures we'll see here are failures that come from the tape drive.
+       */
 			rc = camtape_ioctlrc2err(softc, fd, &sense_data, /*control_cmd*/ 0, &msg);
 		} else {
 			/*
-			 * Short write.  This means that we hit early warning.  Grab the position to see
-			 * what actually happened, and then retry the write.  If we've already done one
-			 * retry, try to grab the sense data and return an error from that.
-			 */
+       * Short write.  This means that we hit early warning.  Grab the position to see
+       * what actually happened, and then retry the write.  If we've already done one
+       * retry, try to grab the sense data and return an error from that.
+       */
 			camtape_readpos(device, pos);
 			if (write_retry_done == 0) {
 				write_retry_done = 1;
@@ -1192,8 +1192,8 @@ static int camtape_get_next_block_to_xfer(void *device, struct tc_position *pos)
 	}
 
 	/*
-	 * XXX KDM should we do any retries here?  Doing retries potentially hides sense data.
-	 */
+   * XXX KDM should we do any retries here?  Doing retries potentially hides sense data.
+   */
 	scsi_read_position_10(&ccb->csio,
 												/*retries*/ 0,
 												/*cbfcnp*/ NULL,
@@ -1387,9 +1387,9 @@ extget_retry:
 
 	if (extget.status == MT_EXT_GET_NEED_MORE_SPACE) {
 		/*
-		 * The driver needs more space, so double
-		 * our allocation and try again.
-		 */
+     * The driver needs more space, so double
+     * our allocation and try again.
+     */
 		alloc_size *= 2;
 		free(xml_str);
 		xml_str = NULL;
@@ -1467,6 +1467,7 @@ struct camtape_status_item
 												 { "bop", NULL },
 												 { "eop", NULL },
 												 { "bpew", NULL } };
+
 #define CT_NUM_STATUS_ITEMS (sizeof(req_status_items) / sizeof(req_status_items[0]))
 
 int camtape_getstatus(struct camtape_data *softc,
@@ -1686,8 +1687,8 @@ int camtape_logsense(void *device, const uint8_t page, const uint8_t subpage, un
 								 /*sense_len*/ SSD_FULL_SIZE,
 								 /*timeout*/ timeout);
 	/*
-	 * XXX KDM need to add subpage to the log sense fill function.
-	 */
+   * XXX KDM need to add subpage to the log sense fill function.
+   */
 	scsi_cmd = (struct scsi_log_sense *)&ccb->csio.cdb_io.cdb_bytes;
 	scsi_cmd->subpage = subpage;
 
@@ -1886,9 +1887,9 @@ int camtape_modesense(void *device,
 											/*sense_len*/ SSD_FULL_SIZE,
 											/*timeout*/ timeout);
 	/*
-	 * XXX KDM need a version of scsi_mode_sense() that allows setting the subpage.  The offset
-	 * is the same in the 6 and 10 byte versions, so we can just set the same byte here.
-	 */
+   * XXX KDM need a version of scsi_mode_sense() that allows setting the subpage.  The offset
+   * is the same in the 6 and 10 byte versions, so we can just set the same byte here.
+   */
 	ccb->csio.cdb_io.cdb_bytes[3] = subpage;
 
 	ccb->ccb_h.flags |= CAM_DEV_QFRZDIS | CAM_PASS_ERR_RECOVER;
@@ -1979,9 +1980,9 @@ int camtape_prevent_medium_removal(void *device)
 	ltfs_profiler_add_entry(softc->profiler, NULL, TAPEBEND_REQ_EXIT(REQ_TC_PREVENTM));
 
 	/*
-	 * The FreeBSD tape driver issues a prevent medium removal command on open, so we don't
-	 * need to do it again.
-	 */
+   * The FreeBSD tape driver issues a prevent medium removal command on open, so we don't
+   * need to do it again.
+   */
 	return DEVICE_GOOD;
 }
 
@@ -1999,9 +2000,9 @@ int camtape_allow_medium_removal(void *device)
 
 	ltfs_profiler_add_entry(softc->profiler, NULL, TAPEBEND_REQ_EXIT(REQ_TC_ALLOWMREM));
 	/*
-	 * The FreeBSD tape driver issues an allow medium removal command on close, so we don't
-	 * need to do it again.
-	 */
+   * The FreeBSD tape driver issues an allow medium removal command on close, so we don't
+   * need to do it again.
+   */
 	return DEVICE_GOOD;
 }
 
@@ -2041,9 +2042,9 @@ int camtape_read_attribute(
 	memset(&(&ccb->ccb_h)[1], 0, sizeof(struct ccb_scsiio) - sizeof(struct ccb_hdr));
 
 	/*
-	 * The function interface only includes enough space for the attribute, and doesn't include
-	 * space for the header.  So we need to allocate that here.
-	 */
+   * The function interface only includes enough space for the attribute, and doesn't include
+   * space for the header.  So we need to allocate that here.
+   */
 	attr_size = size + sizeof(*attr_header);
 	attr_header = calloc(1, attr_size);
 	if (attr_header == NULL) {
@@ -2130,10 +2131,10 @@ int camtape_write_attribute(void *device, const tape_partition_t part, const uns
 	memset(&(&ccb->ccb_h)[1], 0, sizeof(struct ccb_scsiio) - sizeof(struct ccb_hdr));
 
 	/*
-	 * The function interface only includes enough space for the attribute, and doesn't include
-	 * space for the header.  So we need to allocate that here, fill in the length field in the
-	 * header (which should be ignored by the target) and copy the user's data in.
-	 */
+   * The function interface only includes enough space for the attribute, and doesn't include
+   * space for the header.  So we need to allocate that here, fill in the length field in the
+   * header (which should be ignored by the target) and copy the user's data in.
+   */
 	attr_size = size + sizeof(*attr_header);
 	attr_header = calloc(1, attr_size);
 	if (attr_header == NULL) {
@@ -2332,9 +2333,9 @@ int camtape_set_default(void *device)
 	sili_param.value.value_signed = 1;
 
 	/*
-	 * XXX KDM the ibmtape backend retries setting the SILI bit 10 times.  Why?  Is this
-	 * something that we need to do here?
-	 */
+   * XXX KDM the ibmtape backend retries setting the SILI bit 10 times.  Why?  Is this
+   * something that we need to do here?
+   */
 	if (ioctl(softc->fd_sa, MTIOCPARAMSET, &sili_param) == -1) {
 		msg = strdup("Error returned from MTIOCPARAMSET ioctl to set the SILI bit");
 		rc = -EDEV_DRIVER_ERROR;
@@ -2360,13 +2361,13 @@ int camtape_set_default(void *device)
 	ltfsmsg(LTFS_DEBUG, 31392D, __FUNCTION__, "Setting EOT model to 1FM");
 
 	/*
-	 * We have to set the EOT model to 1 filemark.  By default, FreeBSD uses two filemarks at
-	 * the end of the tape unless the drive has a quirk entry to only use one.  LTFS checks
-	 * (in ltfs_seek_index()) to make sure that the only thing beyond the index is a single
-	 * terminating filemark.  If there is anything else (e.g. a second filemark), it
-	 * thinks that the tape isn't consistent.  We could change this assumption in the code,
-	 * or just live with it.  (We're doing the latter.)
-	 */
+   * We have to set the EOT model to 1 filemark.  By default, FreeBSD uses two filemarks at
+   * the end of the tape unless the drive has a quirk entry to only use one.  LTFS checks
+   * (in ltfs_seek_index()) to make sure that the only thing beyond the index is a single
+   * terminating filemark.  If there is anything else (e.g. a second filemark), it
+   * thinks that the tape isn't consistent.  We could change this assumption in the code,
+   * or just live with it.  (We're doing the latter.)
+   */
 	eot_model = 1;
 	if (ioctl(softc->fd_sa, MTIOCSETEOTMODEL, &eot_model) == -1) {
 		msg = strdup("Error returned from MTIOCSETEOTMODEL ioctl to set the EOT model to 1FM");
@@ -2389,9 +2390,9 @@ bailout:
 
 #define LOG_TAPE_ALERT (0x2E)
 #define LOG_PERFORMANCE (0x37)
-#define LOG_PERFORMANCE_CAPACITY_SUB              \
-	(0x64)	// Scope(7-6): Mount Values             \
-					// Level(5-4): Return Advanced Counters \
+#define LOG_PERFORMANCE_CAPACITY_SUB                \
+	(0x64)	// Scope(7-6): Mount Values             \ \
+					// Level(5-4): Return Advanced Counters \ \
 					// Group(3-0): Capacity
 
 static uint16_t volstats[] = {
@@ -2653,13 +2654,13 @@ uint32_t _camtape_get_block_limits(void *device)
 	}
 
 	/*
-	 * Start off with the maximum block size returned from READ BLOCK LIMITS.
-	 */
+   * Start off with the maximum block size returned from READ BLOCK LIMITS.
+   */
 	length = block_items[MT_MAX_BLK].entry->value_unsigned;
 
 	/*
-	 * Limit that by the maximum size supported by the driver and controller.
-	 */
+   * Limit that by the maximum size supported by the driver and controller.
+   */
 	length = MIN(length, block_items[MT_MAX_EFF_IO_SIZE].entry->value_unsigned);
 
 bailout:
@@ -2679,17 +2680,17 @@ int camtape_get_parameters(void *device, struct tc_drive_param *params)
 	memset(params, 0x00, sizeof(*params));
 
 	/*
-	 * This calculation is slightly different than the Linux backend because FreeBSD has a
-	 * different, more variable set of limits.  Depending on the controller, how the user has
-	 * configured MAXPHYS in his kernel config file, and the tape drive, you can get varying
-	 * values out of the _camtape_get_block_limits() function.  It could be as low as 128K,
-	 * or more than 1MB.
-	 *
-	 * If the user has a configuration that allows him to do 1048580 byte transfers, and thus
-	 * do CRC checking on media formatted with a 1MB blocksize, we will let him.  This gives us
-	 * slightly better functionality than the Linux backend, which will let you format a tape
-	 * with a 1MB block size, but then won't let you mount it with CRC checking turned on.
-	 */
+   * This calculation is slightly different than the Linux backend because FreeBSD has a
+   * different, more variable set of limits.  Depending on the controller, how the user has
+   * configured MAXPHYS in his kernel config file, and the tape drive, you can get varying
+   * values out of the _camtape_get_block_limits() function.  It could be as low as 128K,
+   * or more than 1MB.
+   *
+   * If the user has a configuration that allows him to do 1048580 byte transfers, and thus
+   * do CRC checking on media formatted with a 1MB blocksize, we will let him.  This gives us
+   * slightly better functionality than the Linux backend, which will let you format a tape
+   * with a 1MB block size, but then won't let you mount it with CRC checking turned on.
+   */
 	if (global_data.crc_checking)
 		params->max_blksize = MIN(_camtape_get_block_limits(device) - 4, LINUX_MAX_BLOCK_SIZE);
 	else
@@ -2728,14 +2729,14 @@ int camtape_get_parameters(void *device, struct tc_drive_param *params)
 		params->density = softc->density_code;
 		/* TODO: Following field shall be implemented in the future */
 		/*
-		params->is_worm = softc->is_worm;
-		if (IS_ENTERPRISE(softc->drive_type)) {
-			if (softc->density_code & TEST_CRYPTO)
-				params->is_encrypted = true;
-		} else {
-			// TODO: Store is_crypto based on LP17:200h
-		}
-		*/
+    params->is_worm = softc->is_worm;
+    if (IS_ENTERPRISE(softc->drive_type)) {
+            if (softc->density_code & TEST_CRYPTO)
+                    params->is_encrypted = true;
+    } else {
+            // TODO: Store is_crypto based on LP17:200h
+    }
+    */
 	}
 
 	ltfs_profiler_add_entry(softc->profiler, NULL, TAPEBEND_REQ_EXIT(REQ_TC_GETPARAM));
@@ -2863,8 +2864,8 @@ int camtape_get_device_list(struct tc_drive_info *buf, int count)
 						buf[buf_index].lun = -1;
 					} else {
 						/*
-					 * XXX KDM what now?  We have a tape device that isn't SCSI??
-					 */
+               * XXX KDM what now?  We have a tape device that isn't SCSI??
+               */
 					}
 					break;
 				}
@@ -3008,9 +3009,9 @@ bailout:
 int camtape_get_eod_status(void *device, int part)
 {
 	/*
-	 * This feature requires new tape drive firmware
-	 * to support logpage 17h correctly
-	 */
+   * This feature requires new tape drive firmware
+   * to support logpage 17h correctly
+   */
 
 	struct camtape_data *softc = (struct camtape_data *)device;
 	unsigned char logdata[LOGSENSEPAGE];
@@ -3290,12 +3291,12 @@ static int camtape_get_encryption_state(void *device,
 	memset(&es, 0, sizeof(es));
 
 	/*
-	 * XXX KDM
-	 * There is no way with the API for the modesense routine to figure out how much data
-	 * we got in response to our request.  We allocate and ask for buf_size, and we can see how
-	 * much data the target says is there, but we can't see if there is an underrun.  The API
-	 * also always assumes that the function issues a 10 byte mode sense.
-	 */
+   * XXX KDM
+   * There is no way with the API for the modesense routine to figure out how much data
+   * we got in response to our request.  We allocate and ask for buf_size, and we can see how
+   * much data the target says is there, but we can't see if there is an underrun.  The API
+   * also always assumes that the function issues a 10 byte mode sense.
+   */
 	rc = camtape_modesense(device, CT_ISE_PAGE_CODE, TC_MP_PC_CURRENT, 0x00, buf, buf_size);
 	if (rc != DEVICE_GOOD) goto bailout;
 
@@ -3303,9 +3304,9 @@ static int camtape_get_encryption_state(void *device,
 	ise_page = (struct camtape_ibm_initiator_spec_ext_page *)find_mode_page_10(mode_hdr);
 
 	/*
-	 * We first check to see whether this drive is capable of encryption.  If not, there is
-	 * no point in checking to see whether it is enabled.
-	 */
+   * We first check to see whether this drive is capable of encryption.  If not, there is
+   * no point in checking to see whether it is enabled.
+   */
 	if (ise_page->support_flags & CT_ISE_ENCRYPTION_CAPABLE)
 		es.encryption_capable = CT_ENC_CAPABLE;
 	else
@@ -3324,8 +3325,8 @@ static int camtape_get_encryption_state(void *device,
 	if (rc != DEVICE_GOOD) goto bailout;
 
 	/*
-	 * Give the caller a copy of the buffer if he requested it.
-	 */
+   * Give the caller a copy of the buffer if he requested it.
+   */
 	if ((rwc_mode_buf != NULL) && (rwc_buf_len > 0)) {
 		*rwc_fill_len = MIN(buf_size, rwc_buf_len);
 		memcpy(rwc_mode_buf, buf, *rwc_fill_len);
@@ -3335,13 +3336,13 @@ static int camtape_get_encryption_state(void *device,
 	rwc_page = (struct camtape_ibm_rw_control_page *)find_mode_page_10(mode_hdr);
 
 	/*
-	 * In the IBM Linux tape driver, the difference between "system" and "application"
-	 * encryption appears to be whether an application requested turning encryption on, or
-	 * whether encryption was enabled when the driver loaded or via a sysfs/procfs request.
-	 *
-	 * The defines for encryption_state in struct encryption_status are the values for the
-	 * bottom 2 bits of the encryption_state byte in the mode page verbatim.
-	 */
+   * In the IBM Linux tape driver, the difference between "system" and "application"
+   * encryption appears to be whether an application requested turning encryption on, or
+   * whether encryption was enabled when the driver loaded or via a sysfs/procfs request.
+   *
+   * The defines for encryption_state in struct encryption_status are the values for the
+   * bottom 2 bits of the encryption_state byte in the mode page verbatim.
+   */
 	es.encryption_method = rwc_page->encryption_method;
 	switch (rwc_page->encryption_method) {
 		case CT_RWC_ENC_METHOD_NONE:
@@ -3420,9 +3421,9 @@ static int camtape_set_encryption_state(struct camtape_data *softc, camtape_encr
 	scsi_ulto2b(0, mode_hdr->data_length);
 	rwc_page->encryption_state &= ~CT_RWC_ENCRYPTION_STATE_MASK;
 	/*
-	 * Note that this assumes the camtape_encryption_state enumeration and the defines for the
-	 * mode page are the same.
-	 */
+   * Note that this assumes the camtape_encryption_state enumeration and the defines for the
+   * mode page are the same.
+   */
 	rwc_page->encryption_state |= encryption_state;
 
 	rc = camtape_modeselect(softc, buf, buf_fill_len);
@@ -3502,9 +3503,9 @@ static bool is_ame(struct camtape_data *softc)
 static int is_encryption_capable(struct camtape_data *softc)
 {
 	/*
-	 * XXX KDM why does this only support encryption, or at least Application Managed Encryption,
-	 * on LTO drives and not on TS drives?
-	 */
+   * XXX KDM why does this only support encryption, or at least Application Managed Encryption,
+   * on LTO drives and not on TS drives?
+   */
 	if (IS_ENTERPRISE(softc->drive_type)) {
 		ltfsmsg(LTFS_ERR, 31270E, softc->drive_type);
 		return -EDEV_INTERNAL_ERROR;
@@ -3634,10 +3635,10 @@ bailout:
 static void show_hex_dump(const char *const title, const unsigned char *const buf, const uint size)
 {
 	/*
-	 * "         1         2         3         4         5         6         7         8"
-	 * "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
-	 * "xxxxxx  00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n" < 100
-	 */
+   * "         1         2         3         4         5         6         7         8"
+   * "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
+   * "xxxxxx  00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n" < 100
+   */
 	char *const s = calloc((size / 0x10 + 1) * 100, sizeof(char));
 	char *p = s;
 	uint i = 0;
@@ -3703,9 +3704,9 @@ int camtape_get_keyalias(void *device, unsigned char **keyalias) /* This is not 
 	}
 
 	/*
-	 * 1st loop: Get the page length.
-	 * 2nd loop: Get full data in the page.
-	 */
+   * 1st loop: Get the page length.
+   * 2nd loop: Get full data in the page.
+   */
 	for (i = 0; i < 2; ++i) {
 		/* Prepare Data Buffer */
 		if (buf != NULL) {
@@ -3762,18 +3763,18 @@ int camtape_get_keyalias(void *device, unsigned char **keyalias) /* This is not 
 				next_desc += key_length + __offsetof(struct tde_data_enc_desc, key_desc);
 
 				/*
-			 * We're looking for the Authenticated Key-Associated Data descriptor.
-			 */
+           * We're looking for the Authenticated Key-Associated Data descriptor.
+           */
 				if (desc->key_desc_type != TDE_KEY_DESC_A_KAD) continue;
 
 				/*
-			 * Make sure that we aren't going off the end of the buffer.
-			 */
+           * Make sure that we aren't going off the end of the buffer.
+           */
 				if ((next_desc - buf) > buffer_length) break;
 
 				/*
-			 * Copy the key into the softc and let the caller know we got it.
-			 */
+           * Copy the key into the softc and let the caller know we got it.
+           */
 				memcpy(softc->dki, desc->key_desc, MIN(key_length, sizeof(softc->dki)));
 				*keyalias = softc->dki;
 
@@ -3846,15 +3847,15 @@ int camtape_set_lbp(void *device, bool enable)
 		lbp_method = REED_SOLOMON_CRC;
 
 	/*
-	 * First grab all available parameter data.
-	 */
+   * First grab all available parameter data.
+   */
 	memset(&mtinfo, 0, sizeof(mtinfo));
 	rc = camtape_get_mtinfo(softc, &mtinfo, /*params*/ 1, &msg);
 	if (rc != DEVICE_GOOD) goto bailout;
 
 	/*
-	 * Check to see whether protection is supported.
-	 */
+   * Check to see whether protection is supported.
+   */
 	snprintf(tmpname, sizeof(tmpname), "%s.protection_supported", MT_PROTECTION_NAME);
 	entry = mt_status_entry_find(&mtinfo, tmpname);
 	if (entry == NULL) {
@@ -3866,15 +3867,15 @@ int camtape_set_lbp(void *device, bool enable)
 
 	if (entry->value_signed != 1) {
 		/*
-		 * This device doesn't support logical block protection.  Nothing else to do here.
-		 */
+     * This device doesn't support logical block protection.  Nothing else to do here.
+     */
 		ltfsmsg(LTFS_INFO, 31272I);
 		goto bailout;
 	}
 
 	/*
-	 * Get the base protection node.
-	 */
+   * Get the base protection node.
+   */
 	prot_entry = mt_status_entry_find(&mtinfo, MT_PROTECTION_NAME);
 	if (prot_entry == NULL) {
 		msg = strdup("Cannot find sa(4) protection node!");
@@ -3895,8 +3896,8 @@ int camtape_set_lbp(void *device, bool enable)
 		/* IBM drives at least don't support RBDP */
 		protect_list[CT_PP_RBDP].value = 0;
 		/*
-		 * XXX KDM add sa(4) defines for CRC32
-		 */
+     * XXX KDM add sa(4) defines for CRC32
+     */
 		protect_list[CT_PP_PI_LENGTH].value = SA_CTRL_DP_RS_LENGTH;
 		protect_list[CT_PP_PROT_METHOD].value = lbp_method;
 	} else {
@@ -4083,14 +4084,6 @@ struct tape_ops *tape_dev_get_ops(void)
 	return &camtape_drive_handler;
 }
 
-extern char tape_freebsd_cam_dat[];
-
-const char *tape_dev_get_message_bundle_name(void **message_data)
-{
-	*message_data = tape_freebsd_cam_dat;
-	return "tape_freebsd_cam";
-}
-
 /**
  * Given the SA device, opens the SA and Pass Thru devices for
  * the specified tape drive.
@@ -4161,6 +4154,7 @@ void close_sa_device(struct camtape_data *softc)
 		softc->fd_sa = 0;
 	}
 }
+
 void close_cd_pass_device(struct camtape_data *softc)
 {
 	if (softc->cd != NULL) {

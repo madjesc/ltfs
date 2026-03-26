@@ -45,41 +45,12 @@
 ##                  bbiskebo@us.ibm.com
 ##
 ######################################################################################
+LANGS = \
+	en_US.txt
 
-RESOURCES = \
-	libbin_mkltfs_dat.a \
-	libbin_ltfsck_dat.a \
-	libbin_ltfs_dat.a \
-	libkmi_simple_dat.a \
-	libkmi_flatfile_dat.a \
-	libtape_generic_file_dat.a \
-	libtape_generic_itdtimg_dat.a \
-	libtape_linux_lin_tape_dat.a \
-	libtape_linux_sg_dat.a \
-	libtape_iokit_dat.a \
-	libtape_freebsd_cam_dat.a \
-	libiosched_fcfs_dat.a \
-	libiosched_unified_dat.a \
-	liblibltfs_dat.a \
-	libtape_common_dat.a \
-	libinternal_error_dat.a
+.PHONY: all $(LANGS)
 
-.PHONY: all $(RESOURCES) clean-local
-if CHK_MESSAGE
-all: $(RESOURCES) ../src/ltfsmsg.h
-else
-all: $(RESOURCES)
-endif
-
-$(RESOURCES):
-	@./make_message_src.sh $@
-
-if CHK_MESSAGE
-../src/ltfsmsg.h: $(RESOURCES)
-	./print_error_messages.py > ../src/ltfsmsg.h
-endif
-
-clean-local:
-	rm -rf $(RESOURCES) */work
-	rm -f ../src/ltfsmsg.h
-	rm -f *.la
+all: $(LANGS)
+$(LANGS):
+	@genrb -q $@
+	@pkgdata -p messages -m static -q messages.res

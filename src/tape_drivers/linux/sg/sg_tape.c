@@ -200,9 +200,9 @@ static int _set_lbp(void *device, bool enable)
 			lbp_method = REED_SOLOMON_CRC;
 	} else {
 		/*
-		 * LTO drive doesn't have a modepage to support CRC32C or not
-		 * So use CRC32C based on it's generation
-		 */
+     * LTO drive doesn't have a modepage to support CRC32C or not
+     * So use CRC32C based on it's generation
+     */
 		if (DRIVE_GEN(priv->drive_type) >= 0x07)
 			lbp_method = CRC32C_CRC;
 		else
@@ -436,9 +436,9 @@ static int _raw_dev_open(const char *devname)
 	int flags = 0;
 
 	/*
-	 *  Open the device file exclusively with non-blocking first to fail another LTFS instance
-	 *  to try to mount the same device.
-	 */
+   *  Open the device file exclusively with non-blocking first to fail another LTFS instance
+   *  to try to mount the same device.
+   */
 	fd = open(devname, O_RDWR | O_EXCL | O_NONBLOCK);
 	if (fd < 0) {
 		ltfsmsg(LTFS_INFO, 30210I, devname, errno);
@@ -603,10 +603,10 @@ void _clear_por_raw(const int fd)
 		switch (ret) {
 			case -EDEV_NO_MEDIUM:
 				/*
-				 * The enterprise tape will return this error code
-				 * when a tape is on the lock position.
-				 * Just ignore this on both the LTO and the enterprise tape
-				 */
+         * The enterprise tape will return this error code
+         * when a tape is on the lock position.
+         * Just ignore this on both the LTO and the enterprise tape
+         */
 				ret = 0;
 				break;
 			default:
@@ -800,9 +800,9 @@ static int _reconnect_device(void *device)
 	_clear_por(priv);
 
 	/*
-	 * !!!!! This is a kind of work around to avoid to fetch false one-shot `good` here.
-	 * Fetch result of TUR until 3 straight same result
-	 */
+   * !!!!! This is a kind of work around to avoid to fetch false one-shot `good` here.
+   * Fetch result of TUR until 3 straight same result
+   */
 	ltfsmsg(LTFS_INFO, 30296I, __LINE__);
 	ret = _get_stable_tur_response(priv);
 	if (ret == -EDEV_RESERVATION_CONFLICT) {
@@ -820,9 +820,9 @@ static int _reconnect_device(void *device)
 		_clear_por(priv);
 
 		/*
-		 * !!!!! This is the code just in case, check TUR response again and restore reservation
-		 * if drive reports `reservation conflict`.
-		 */
+     * !!!!! This is the code just in case, check TUR response again and restore reservation
+     * if drive reports `reservation conflict`.
+     */
 		ltfsmsg(LTFS_INFO, 30296I, __LINE__);
 		ret = _get_stable_tur_response(priv);
 		if (ret == -EDEV_RESERVATION_CONFLICT) {
@@ -1367,10 +1367,10 @@ int sg_open(const char *devname, void **handle)
 
 			if (!memcmp(buf_key.key, priv->key, KEYLEN)) {
 				/*
-				 * Reserved by this node. Try to reserve.
-				 * If it can be reserved successfully, this drive was reserved with same device file
-				 * on the previous session. If not, another instance is already reseerved.
-				 */
+         * Reserved by this node. Try to reserve.
+         * If it can be reserved successfully, this drive was reserved with same device file
+         * on the previous session. If not, another instance is already reseerved.
+         */
 				ret = _cdb_pro(priv, PRO_ACT_RESERVE, PRO_TYPE_EXCLUSIVE, priv->key, NULL);
 				if (!ret) {
 					ltfsmsg(LTFS_INFO, 30291I, priv->devname);
@@ -1425,9 +1425,9 @@ int sg_open(const char *devname, void **handle)
 
 		if (ret < 0) {
 			/*
-			 * The drive doesn't support RSOC, buffer overrun or parse error
-			 * try to initialize the timeout table from drive vendor and drive type
-			 */
+       * The drive doesn't support RSOC, buffer overrun or parse error
+       * try to initialize the timeout table from drive vendor and drive type
+       */
 			ltfsmsg(LTFS_INFO, 30294I, "vendor and device");
 			ret = init_timeout(priv->vendor, &priv->timeouts, priv->drive_type);
 			if (!priv->timeouts) {
@@ -1438,9 +1438,9 @@ int sg_open(const char *devname, void **handle)
 		free(rsoc_buf);
 	} else {
 		/*
-		 * Memory allocation failure, try to initialize the timeout table
-		 * from drive vendor and drive type
-		 */
+     * Memory allocation failure, try to initialize the timeout table
+     * from drive vendor and drive type
+     */
 		ltfsmsg(LTFS_INFO, 30294I, "vendor and device");
 		init_timeout(priv->vendor, &priv->timeouts, priv->drive_type);
 		if (!priv->timeouts) {
@@ -1529,9 +1529,9 @@ int sg_is_connected(const char *devname)
 	int ret = 0;
 
 	/*
-	 * We assume that /dev is handled by a daemon such as Udev and that
-	 * device entries are automatically removed and added upon hotplug events.
-	 */
+   * We assume that /dev is handled by a daemon such as Udev and that
+   * device entries are automatically removed and added upon hotplug events.
+   */
 	ret = stat(devname, &statbuf);
 	return ret;
 }
@@ -1742,10 +1742,10 @@ static int _cdb_read(void *device, char *buf, size_t size, bool sili)
 					if (!req.dxfer_len || diff_len != req.resid) {
 #if SUPPORT_BUGGY_IFS
 						/*
-						 * A few I/Fs, like thunderbolt/SAS converter or USB/SAS converter,
-						 * cannot handle actual transfer length and residual length correctly
-						 * In this case, LTFS will trust SCSI sense.
-						 */
+             * A few I/Fs, like thunderbolt/SAS converter or USB/SAS converter,
+             * cannot handle actual transfer length and residual length correctly
+             * In this case, LTFS will trust SCSI sense.
+             */
 						if (diff_len < 0) {
 							ltfsmsg(LTFS_INFO, 30820I, diff_len, size - diff_len);	// "Detect overrun condition"
 							ret = -EDEV_OVERRUN;
@@ -1943,11 +1943,11 @@ start_read:
 		goto start_read;
 	} else if (!(pos->block) && unusual_size && (unsigned int)ret == size) {
 		/*
-		 *  Try to read again without sili bit, because some I/F doesn't support SILION read correctly
-		 *  like USB connected LTO drive.
-		 *  This recovery procedure is executed only when reading VOL1 on both partiton. Once this memod
-		 *  is completed successfully, the iokit backend uses SILI off read always.
-		 */
+     *  Try to read again without sili bit, because some I/F doesn't support SILION read correctly
+     *  like USB connected LTO drive.
+     *  This recovery procedure is executed only when reading VOL1 on both partiton. Once this memod
+     *  is completed successfully, the iokit backend uses SILI off read always.
+     */
 		pos_retry.partition = pos->partition;
 		ret = sg_locate(device, pos_retry, pos);
 		if (ret) {
@@ -4126,12 +4126,12 @@ int sg_get_parameters(void *device, struct tc_drive_param *params)
 
 			/* TODO: Following field shall be implemented in the future */
 			/*
-			if ( (priv->cart_type & 0xF0) == 0xC0 || (priv->cart_type & 0xF0) == 0xA0 )
-				params->is_worm = true;
+      if ( (priv->cart_type & 0xF0) == 0xC0 || (priv->cart_type & 0xF0) == 0xA0 )
+              params->is_worm = true;
 
-			if (priv->density_code & TEST_CRYPTO)
-				params->is_encrypted = true;
-			*/
+      if (priv->density_code & TEST_CRYPTO)
+              params->is_encrypted = true;
+      */
 		} else {
 			unsigned char buf[MODE_DEVICE_CONFIG_SIZE];
 
@@ -4144,11 +4144,11 @@ int sg_get_parameters(void *device, struct tc_drive_param *params)
 
 			/* TODO: Following field shall be implemented in the future */
 			/*
-			if ( (priv->cart_type & 0x0F) == 0x0C)
-				params->is_worm = true;
+      if ( (priv->cart_type & 0x0F) == 0x0C)
+              params->is_worm = true;
 
-			//TODO: Store is_crypto based on LP17:200h
-			*/
+      //TODO: Store is_crypto based on LP17:200h
+      */
 		}
 	} else {
 		params->cart_type = priv->cart_type;
@@ -4177,9 +4177,9 @@ int sg_get_eod_status(void *device, int part)
 	struct sg_data *priv = (struct sg_data *)device;
 
 	/*
-	 * This feature requires new tape drive firmware
-	 * to support logpage 17h correctly
-	 */
+   * This feature requires new tape drive firmware
+   * to support logpage 17h correctly
+   */
 	unsigned char logdata[LOGSENSEPAGE];
 	unsigned char buf[16];
 	unsigned int i;
@@ -4572,11 +4572,11 @@ int sg_set_key(void *device, const unsigned char *keyalias, const unsigned char 
 	struct sg_data *priv = (struct sg_data *)device;
 
 	/*
-	 * Encryption  Decryption     Key         DKi      keyalias
-	 *    Mode        Mode
-	 * 0h Disable  0h Disable  Prohibited  Prohibited    NULL
-	 * 2h Encrypt  3h Mixed    Mandatory    Optional    !NULL
-	 */
+   * Encryption  Decryption     Key         DKi      keyalias
+   *    Mode        Mode
+   * 0h Disable  0h Disable  Prohibited  Prohibited    NULL
+   * 2h Encrypt  3h Mixed    Mandatory    Optional    !NULL
+   */
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_ENTER(REQ_TC_SETKEY));
 	ret = is_encryption_capable(device);
 	if (ret < 0) {
@@ -4601,27 +4601,31 @@ int sg_set_key(void *device, const unsigned char *keyalias, const unsigned char 
 	ltfs_u16tobe(buffer + 2, size - 4);
 	buffer[4] = 0x40; /* SCOPE: 010b All I_T Nexus, LOCK: 0 */
 	/*
-	 * CEEM: 00b Vendor specific
-	 * RDMC: 00b The device entity shall mark each encrypted logical block per the default setting
-	 *           for the algorithm.
-	 * SDK:   0b The logical block encryption key sent in this page shall be the logical block
-	 *           encryption key used for both encryption and decryption.
-	 * CKOD:  0b The demounting of a volume shall not affect the logical block encryption parameters.
-	 * CKORP: 0b Clear key on reservation preempt (CKORP) bit
-	 * CKORL: 0b Clear key on reservation loss (CKORL) bit
-	 */
+   * CEEM: 00b Vendor specific
+   * RDMC: 00b The device entity shall mark each encrypted logical block per the default setting
+   *           for the algorithm.
+   * SDK:   0b The logical block encryption key sent in this page shall be the logical block
+   *           encryption key used for both encryption and decryption.
+   * CKOD:  0b The demounting of a volume shall not affect the logical block encryption parameters.
+   * CKORP: 0b Clear key on reservation preempt (CKORP) bit
+   * CKORL: 0b Clear key on reservation loss (CKORL) bit
+   */
 	buffer[5] = 0x00;
+
 	enum
 	{
 		DISABLE = 0,
 		EXTERNAL = 1,
 		ENCRYPT = 2
 	};
+
 	buffer[6] = keyalias ? ENCRYPT : DISABLE; /* ENCRYPTION MODE */
+
 	enum
 	{ /* DISABLE = 0, */ RAW = 1,
 		DECRYPT = 2,
 		MIXED = 3 };
+
 	buffer[7] = keyalias ? MIXED : DISABLE;									/* DECRYPTION MODE */
 	buffer[8] = 1;																					/* ALGORITHM INDEX */
 	buffer[9] = 0;																					/* LOGICAL BLOCK ENCRYPTION KEY FORMAT: plain-text key */
@@ -4661,10 +4665,10 @@ out:
 static void show_hex_dump(const char *const title, const uint8_t *const buf, const size_t size)
 {
 	/*
-	 * "         1         2         3         4         5         6         7         8"
-	 * "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
-	 * "xxxxxx  00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n" < 100
-	 */
+   * "         1         2         3         4         5         6         7         8"
+   * "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
+   * "xxxxxx  00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n" < 100
+   */
 	char *const s = calloc((size / 0x10 + 1) * 100, sizeof(char));
 	char *p = s;
 	uint i = 0;
@@ -4715,9 +4719,9 @@ int sg_get_keyalias(void *device, unsigned char **keyalias)
 	*keyalias = NULL;
 
 	/*
-	 * 1st loop: Get the page length.
-	 * 2nd loop: Get full data in the page.
-	 */
+   * 1st loop: Get the page length.
+   * 2nd loop: Get full data in the page.
+   */
 	for (i = 0; i < 2; ++i) {
 		free(buffer);
 		ret = _cdb_spin(device, sps, &buffer, &size);
@@ -4727,6 +4731,7 @@ int sg_get_keyalias(void *device, unsigned char **keyalias)
 	show_hex_dump("SPIN:", buffer, size + 4);
 
 	const unsigned char encryption_status = buffer[12] & 0xF;
+
 	enum
 	{
 		ENC_STAT_INCAPABLE = 0,
@@ -4738,6 +4743,7 @@ int sg_get_keyalias(void *device, unsigned char **keyalias)
 		ENC_STAT_ENCRYPTED_BY_OTHER_KEY = 6,
 		ENC_STAT_RESERVED, /* 7h-Fh */
 	};
+
 	if (encryption_status == ENC_STAT_ENCRYPTED_BY_UNSUPPORTED_ALGORITHM ||
 			encryption_status == ENC_STAT_ENCRYPTED_BY_SUPPORTED_ALGORITHM ||
 			encryption_status == ENC_STAT_ENCRYPTED_BY_OTHER_KEY) {
@@ -5150,12 +5156,4 @@ struct tape_ops *tape_dev_get_ops(void)
 	if (!vendor_table) vendor_table = ibm_tape_errors;
 
 	return &sg_handler;
-}
-
-extern char tape_linux_sg_dat[];
-
-const char *tape_dev_get_message_bundle_name(void **message_data)
-{
-	*message_data = tape_linux_sg_dat;
-	return "tape_linux_sg";
 }

@@ -466,9 +466,9 @@ int ltfs_fsops_unlink(const char *path, ltfs_file_id *id, struct ltfs_volume *vo
 
 	if (dcache_initialized(vol)) {
 		/*
-		 * Actually parent and target metalock is not required when call dcache_unlink().
-		 * But we intended to keep it for safety.
-		 */
+     * Actually parent and target metalock is not required when call dcache_unlink().
+     * But we intended to keep it for safety.
+     */
 		ret = dcache_unlink(path_norm, d, vol);
 		if (ret < 0) {
 			releasewrite_mrsw(&d->meta_lock);
@@ -678,10 +678,10 @@ int ltfs_fsops_rename(const char *from, const char *to, ltfs_file_id *id, struct
 	}
 
 	/* Validate some extra failure cases. Normally FUSE will not ask a file system to rename
-	 * a dentry into a subdirectory of itself, or any dentry to one of its predecessors.
-	 * However, this can happen if the names used for the source and destination paths
-	 * are considered different by FUSE, but the same by LTFS. That's the case for names
-	 * that are "similar" except for Unicode normalization. */
+   * a dentry into a subdirectory of itself, or any dentry to one of its predecessors.
+   * However, this can happen if the names used for the source and destination paths
+   * are considered different by FUSE, but the same by LTFS. That's the case for names
+   * that are "similar" except for Unicode normalization. */
 	ret = 0;
 	if (fromdentry == todir || fs_is_predecessor(fromdentry, todir))
 		ret = -LTFS_RENAMELOOP;
@@ -691,9 +691,9 @@ int ltfs_fsops_rename(const char *from, const char *to, ltfs_file_id *id, struct
 	}
 	if (ret < 0) {
 		/* Need to release fromdentry and todentry. This is slightly tricky because if we get
-		 * here, it's possible that one of those is equal to one of the directories. In that
-		 * case, we need to ensure that the directory reference and locks are released correctly
-		 * later on, so just decrement the handle count instead of calling fs_release_dentry(). */
+     * here, it's possible that one of those is equal to one of the directories. In that
+     * case, we need to ensure that the directory reference and locks are released correctly
+     * later on, so just decrement the handle count instead of calling fs_release_dentry(). */
 		if (fromdentry != todir)
 			fs_release_dentry(fromdentry);
 		else
@@ -709,10 +709,10 @@ int ltfs_fsops_rename(const char *from, const char *to, ltfs_file_id *id, struct
 
 #ifdef __APPLE__
 	/*
-	 * Directory move is inhibited because of a MacFUSE bug.
-	 * MacFUSE requests unexpected path after directory move, and that problem
-	 * causes an unexpected move.
-	 */
+   * Directory move is inhibited because of a MacFUSE bug.
+   * MacFUSE requests unexpected path after directory move, and that problem
+   * causes an unexpected move.
+   */
 	if (fromdentry->isdir && fromdir != todir) {
 		ltfsmsg(LTFS_INFO, 11259I);
 		ret = -LTFS_DIRMOVE;
@@ -736,7 +736,7 @@ int ltfs_fsops_rename(const char *from, const char *to, ltfs_file_id *id, struct
 	}
 
 	/* If the destination dentry was found and is distinct from the source dentry, try
-	 * to unlink it before going forward with the rename. */
+   * to unlink it before going forward with the rename. */
 	if (todentry && todentry != fromdentry) {
 		if (todentry->isdir) {
 			ret = 0;
@@ -771,8 +771,8 @@ int ltfs_fsops_rename(const char *from, const char *to, ltfs_file_id *id, struct
 		todentry = NULL;
 	} else if (todentry) {
 		/* Don't return immediately if todentry == fromdentry, as the name could still change
-		 * if the new name is not identical to the old (i.e. different case on case-insensitive
-		 * platforms). */
+     * if the new name is not identical to the old (i.e. different case on case-insensitive
+     * platforms). */
 		fs_release_dentry(todentry);
 	}
 
@@ -853,7 +853,7 @@ out_release:
 	}
 
 	/* Tell the scheduler about fromdentry's new name, ignoring errors (because the
-	 * rename already finished, no going back now) */
+   * rename already finished, no going back now) */
 	if (ret == 0 && iosched_initialized(vol) && fromdentry) {
 		iosched_update_data_placement(fromdentry, vol);
 		fs_release_dentry(fromdentry);
@@ -998,7 +998,7 @@ int ltfs_fsops_setxattr(const char *path,
 	}
 
 	/* Special case: if we are syncing the volume, flush the scheduler buffers
-	 * before taking locks. */
+   * before taking locks. */
 start:
 	if (!strcmp(new_name_strip, "ltfs.sync") && !strcmp(path, "/")) {
 		ret = ltfs_fsops_flush(NULL, false, vol);
@@ -1703,9 +1703,9 @@ int ltfs_fsops_write(
 	}
 
 	/* We don't check for device read-only here because the I/O scheduler and ltfs_fsraw_write()
-	 * both know to do that themselves.
-	 * We don't check for unit ready here because this call guarantees a write request later,
-	 * which will catch the unready condition. */
+   * both know to do that themselves.
+   * We don't check for unit ready here because this call guarantees a write request later,
+   * which will catch the unready condition. */
 
 	if (iosched_initialized(vol)) {
 		ret = iosched_write(d, buf, count, offset, isupdatetime, vol);
@@ -1809,7 +1809,7 @@ int ltfs_fsops_flush(struct dentry *d, bool closeflag, struct ltfs_volume *vol)
 	if (d && d->isdir) return -LTFS_ISDIRECTORY;
 
 	/* Don't need to check for read-only or unit ready here; the I/O scheduler will check for
-	 * those conditions if it wants to know about them. */
+   * those conditions if it wants to know about them. */
 
 	if (iosched_initialized(vol)) ret = iosched_flush(d, closeflag, vol);
 

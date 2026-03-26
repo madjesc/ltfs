@@ -691,7 +691,7 @@ int _matches_name_criteria_caseless(const UChar *criteria, int32_t cr_len, const
 			}
 
 			/* If we got this far, the file name is done and the pattern doesn't end with
-			 * an asterisk. No match. */
+       * an asterisk. No match. */
 			if (fi_bnd[0] == fi_bnd[1]) break;
 
 			/* Question mark: accept any character. */

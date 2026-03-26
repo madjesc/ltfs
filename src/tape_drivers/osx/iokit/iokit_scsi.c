@@ -145,7 +145,7 @@ int iokit_issue_cdb_command(struct iokit_device *device, struct iokit_scsi_reque
 {
 	int ret = -EDEV_INTERNAL_ERROR;
 	;
-	//char sense_string[SIZE_OF_SENSE_STRING] = "";
+	// char sense_string[SIZE_OF_SENSE_STRING] = "";
 
 	IOReturn kernelReturn = kIOReturnSuccess;
 	IOVirtualRange *range = NULL;

@@ -40,13 +40,13 @@ nobase_bin_SCRIPTS = ltfs_ordered_copy
 noinst_HEADERS =
 
 mkltfs_SOURCES = mkltfs.c
-mkltfs_DEPENDENCIES = ../libltfs/libltfs.la ../../messages/libbin_mkltfs_dat.a
+mkltfs_DEPENDENCIES = ../libltfs/libltfs.la
 mkltfs_LDADD = ../libltfs/libltfs.la
-mkltfs_LDFLAGS = @AM_LDFLAGS@ ../../messages/libbin_mkltfs_dat.a
+mkltfs_LDFLAGS = @AM_LDFLAGS@
 mkltfs_CPPFLAGS = @AM_CPPFLAGS@ -I .. -fPIC
 
 ltfsck_SOURCES = ltfsck.c
-ltfsck_DEPENDENCIES = ../libltfs/libltfs.la ../../messages/libbin_ltfsck_dat.a
+ltfsck_DEPENDENCIES = ../libltfs/libltfs.la
 ltfsck_LDADD = ../libltfs/libltfs.la
-ltfsck_LDFLAGS = @AM_LDFLAGS@ ../../messages/libbin_ltfsck_dat.a
+ltfsck_LDFLAGS = @AM_LDFLAGS@
 ltfsck_CPPFLAGS = @AM_CPPFLAGS@ -I .. -fPIC

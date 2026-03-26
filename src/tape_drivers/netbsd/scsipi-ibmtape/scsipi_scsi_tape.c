@@ -179,8 +179,8 @@ int scsipi_issue_cdb_command(struct scsipi_tape *device, scsireq_t *req, char *d
 	status = ioctl(device->fd, SCIOCCOMMAND, req);
 
 	/*
-	 * the command requested was not accepted by the driver
-	 */
+   * the command requested was not accepted by the driver
+   */
 	if (status != 0) {
 		ltfsmsg(LTFS_INFO, 30200I, req->cmd[0], errno);
 		if (msg) *msg = "Busy on the driver";

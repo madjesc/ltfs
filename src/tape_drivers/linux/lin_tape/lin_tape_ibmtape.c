@@ -350,11 +350,11 @@ static inline int _sioc_paththrough(void *device, struct sioc_pass_through *spt)
 						((struct lin_tape_ibmtape *)device)->drive_serial);
 
 		/*
-		 *  When the issued command is write or writefm command and hit
-		 *  early warning condition, lin_tape doesn't return correct sense.
-		 *  (Return 00/0000 with EIO in errno) So always need to call
-		 *  _sioc_get_sense() here.
-		 */
+     *  When the issued command is write or writefm command and hit
+     *  early warning condition, lin_tape doesn't return correct sense.
+     *  (Return 00/0000 with EIO in errno) So always need to call
+     *  _sioc_get_sense() here.
+     */
 		_lin_tape_ibmtape_get_sense(device, spt);
 
 		if (spt->sense_length) {
@@ -1248,9 +1248,9 @@ int lin_tape_ibmtape_is_connected(const char *devname)
 	int ret = 0;
 
 	/*
-	 * We assume that /dev is handled by a daemon such as Udev and that
-	 * device entries are automatically removed and added upon hotplug events.
-	 */
+   * We assume that /dev is handled by a daemon such as Udev and that
+   * device entries are automatically removed and added upon hotplug events.
+   */
 	ret = stat(devname, &statbuf);
 	return ret;
 }
@@ -1325,10 +1325,10 @@ int lin_tape_ibmtape_read(void *device, char *buf, size_t count, struct tc_posit
 	size_t datacount = count;
 
 	/*
-	 * TODO: Check count is smaller than max of SSIZE_MAX
-	 *       The prototype of read system call is
-	 *       ssize_t read(int fd, void *buf, size_t count);
-	 */
+   * TODO: Check count is smaller than max of SSIZE_MAX
+   *       The prototype of read system call is
+   *       ssize_t read(int fd, void *buf, size_t count);
+   */
 
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_ENTER(REQ_TC_READ));
 	ltfsmsg(LTFS_DEBUG3, 30595D, "read", count, ((struct lin_tape_ibmtape *)device)->drive_serial);
@@ -1498,10 +1498,10 @@ int lin_tape_ibmtape_write(void *device, const char *buf, size_t count, struct t
 	size_t datacount = count;
 
 	/*
-	 * TODO: Check count is smaller than max of SSIZE_MAX
-	 *       The prototype of write system call is
-	 *       ssize_t write(int fd, const void *buf, size_t count);
-	 */
+   * TODO: Check count is smaller than max of SSIZE_MAX
+   *       The prototype of write system call is
+   *       ssize_t write(int fd, const void *buf, size_t count);
+   */
 
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_ENTER(REQ_TC_WRITE));
 	ltfsmsg(LTFS_DEBUG3, 30595D, "write", count, ((struct lin_tape_ibmtape *)device)->drive_serial);
@@ -2898,9 +2898,9 @@ int lin_tape_ibmtape_set_default(void *device)
 
 #define LOG_TAPE_ALERT (0x2E)
 #define LOG_PERFORMANCE (0x37)
-#define LOG_PERFORMANCE_CAPACITY_SUB              \
-	(0x64)	// Scope(7-6): Mount Values             \
-					// Level(5-4): Return Advanced Counters \
+#define LOG_PERFORMANCE_CAPACITY_SUB                \
+	(0x64)	// Scope(7-6): Mount Values             \ \
+					// Level(5-4): Return Advanced Counters \ \
 					// Group(3-0): Capacity
 
 static uint16_t volstats[] = {
@@ -3221,14 +3221,14 @@ int lin_tape_ibmtape_get_parameters(void *device, struct tc_drive_param *params)
 
 		/* TODO: Following field shall be implemented in the future */
 		/*
-		params->is_worm = priv->is_worm;
-		if (IS_ENTERPRISE(priv->drive_type)) {
-			if (priv->density_code & TEST_CRYPTO)
-				params->is_encrypted = true;
-		} else {
-			// TODO: Store is_crypto based on LP17:200h
-		}
-		*/
+    params->is_worm = priv->is_worm;
+    if (IS_ENTERPRISE(priv->drive_type)) {
+            if (priv->density_code & TEST_CRYPTO)
+                    params->is_encrypted = true;
+    } else {
+            // TODO: Store is_crypto based on LP17:200h
+    }
+    */
 	}
 
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_EXIT(REQ_TC_GETPARAM));
@@ -3261,6 +3261,7 @@ static const char *generate_product_name(const char *product_id)
  * @return on success, available device count on this system or a negative value on error.
  */
 #define DEV_LIST_FILE "/proc/scsi/IBMtape"
+
 int lin_tape_ibmtape_get_device_list(struct tc_drive_info *buf, int count)
 {
 	FILE *list;
@@ -3405,9 +3406,9 @@ int lin_tape_ibmtape_setcap(void *device, uint16_t proportion)
 int lin_tape_ibmtape_get_eod_status(void *device, int part)
 {
 	/*
-	 * This feature requires new tape drive firmware
-	 * to support logpage 17h correctly
-	 */
+   * This feature requires new tape drive firmware
+   * to support logpage 17h correctly
+   */
 
 	unsigned char logdata[LOGSENSEPAGE];
 	unsigned char buf[16] = { 0 };
@@ -3740,11 +3741,11 @@ int lin_tape_ibmtape_security_protocol_out(void *device, const uint16_t sps, uns
 int lin_tape_ibmtape_set_key(void *device, const unsigned char *const keyalias, const unsigned char *const key)
 {
 	/*
-	 * Encryption  Decryption     Key         DKi      keyalias
-	 *    Mode        Mode
-	 * 0h Disable  0h Disable  Prohibited  Prohibited    NULL
-	 * 2h Encrypt  3h Mixed    Mandatory    Optional    !NULL
-	 */
+   * Encryption  Decryption     Key         DKi      keyalias
+   *    Mode        Mode
+   * 0h Disable  0h Disable  Prohibited  Prohibited    NULL
+   * 2h Encrypt  3h Mixed    Mandatory    Optional    !NULL
+   */
 	struct lin_tape_ibmtape *priv = (struct lin_tape_ibmtape *)device;
 
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_ENTER(REQ_TC_SETKEY));
@@ -3772,27 +3773,31 @@ int lin_tape_ibmtape_set_key(void *device, const unsigned char *const keyalias, 
 	ltfs_u16tobe(buffer + 2, size - 4);
 	buffer[4] = 0x40; /* SCOPE: 010b All I_T Nexus, LOCK: 0 */
 	/*
-	 * CEEM: 00b Vendor specific
-	 * RDMC: 00b The device entity shall mark each encrypted logical block per the default setting
-	 *           for the algorithm.
-	 * SDK:   0b The logical block encryption key sent in this page shall be the logical block
-	 *           encryption key used for both encryption and decryption.
-	 * CKOD:  0b The demounting of a volume shall not affect the logical block encryption parameters.
-	 * CKORP: 0b Clear key on reservation preempt (CKORP) bit
-	 * CKORL: 0b Clear key on reservation loss (CKORL) bit
-	 */
+   * CEEM: 00b Vendor specific
+   * RDMC: 00b The device entity shall mark each encrypted logical block per the default setting
+   *           for the algorithm.
+   * SDK:   0b The logical block encryption key sent in this page shall be the logical block
+   *           encryption key used for both encryption and decryption.
+   * CKOD:  0b The demounting of a volume shall not affect the logical block encryption parameters.
+   * CKORP: 0b Clear key on reservation preempt (CKORP) bit
+   * CKORL: 0b Clear key on reservation loss (CKORL) bit
+   */
 	buffer[5] = 0x00;
+
 	enum
 	{
 		DISABLE = 0,
 		EXTERNAL = 1,
 		ENCRYPT = 2
 	};
+
 	buffer[6] = keyalias ? ENCRYPT : DISABLE; /* ENCRYPTION MODE */
+
 	enum
 	{ /* DISABLE = 0, */ RAW = 1,
 		DECRYPT = 2,
 		MIXED = 3 };
+
 	buffer[7] = keyalias ? MIXED : DISABLE;									/* DECRYPTION MODE */
 	buffer[8] = 1;																					/* ALGORITHM INDEX */
 	buffer[9] = 0;																					/* LOGICAL BLOCK ENCRYPTION KEY FORMAT: plain-text key */
@@ -3832,10 +3837,10 @@ out:
 static void show_hex_dump(const char *const title, const unsigned char *const buf, const uint size)
 {
 	/*
-	 * "         1         2         3         4         5         6         7         8"
-	 * "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
-	 * "xxxxxx  00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n" < 100
-	 */
+   * "         1         2         3         4         5         6         7         8"
+   * "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
+   * "xxxxxx  00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n" < 100
+   */
 	char *const s = calloc((size / 0x10 + 1) * 100, sizeof(char));
 	char *p = s;
 	uint i = 0;
@@ -3885,9 +3890,9 @@ int lin_tape_ibmtape_get_keyalias(void *device, unsigned char **keyalias) /* Thi
 	*keyalias = NULL;
 
 	/*
-	 * 1st loop: Get the page length.
-	 * 2nd loop: Get full data in the page.
-	 */
+   * 1st loop: Get the page length.
+   * 2nd loop: Get full data in the page.
+   */
 	for (i = 0; i < 2; ++i) {
 		/* Prepare Data Buffer */
 		free(spt.buffer);
@@ -3933,6 +3938,7 @@ int lin_tape_ibmtape_get_keyalias(void *device, unsigned char **keyalias) /* Thi
 	}
 
 	const unsigned char encryption_status = spt.buffer[12] & 0xF;
+
 	enum
 	{
 		ENC_STAT_INCAPABLE = 0,
@@ -3944,6 +3950,7 @@ int lin_tape_ibmtape_get_keyalias(void *device, unsigned char **keyalias) /* Thi
 		ENC_STAT_ENCRYPTED_BY_OTHER_KEY = 6,
 		ENC_STAT_RESERVED, /* 7h-Fh */
 	};
+
 	if (encryption_status == ENC_STAT_ENCRYPTED_BY_UNSUPPORTED_ALGORITHM ||
 			encryption_status == ENC_STAT_ENCRYPTED_BY_SUPPORTED_ALGORITHM ||
 			encryption_status == ENC_STAT_ENCRYPTED_BY_OTHER_KEY) {
@@ -4251,6 +4258,7 @@ int lin_tape_ibmtape_getdump_drive(void *device, const char *fname)
  * @return 0 on success or negative value on error
  */
 #define SENDDIAG_BUF_LEN (8)
+
 int lin_tape_ibmtape_forcedump_drive(void *device)
 {
 	struct sioc_pass_through spt;
@@ -4432,12 +4440,4 @@ struct tape_ops lin_tape_ibmtape_drive_handler = {
 struct tape_ops *tape_dev_get_ops(void)
 {
 	return &lin_tape_ibmtape_drive_handler;
-}
-
-extern char tape_linux_lin_tape_dat[];
-
-const char *tape_dev_get_message_bundle_name(void **message_data)
-{
-	*message_data = tape_linux_lin_tape_dat;
-	return "tape_linux_lin_tape";
 }

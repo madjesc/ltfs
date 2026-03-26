@@ -114,14 +114,14 @@ static int decode_entry_name(char **new_name, const char *name)
 			encoded = false;
 
 			/*
-			 * Allow '/' (0x2f), US (0x1f) and '\0' (0x00) but revert to percent encoded
-			 * string for supporting bad manner writer
-			 */
+       * Allow '/' (0x2f), US (0x1f) and '\0' (0x00) but revert to percent encoded
+       * string for supporting bad manner writer
+       */
 			/*
-			 * TODO: Need to remove US (0x1f) from this list. Because
-			 * US shall be accepted as a part of filename.
-			 * Now LTFS rejects US because of a historical issue. (See Issue #106 on GitHub)
-			 */
+       * TODO: Need to remove US (0x1f) from this list. Because
+       * US shall be accepted as a part of filename.
+       * Now LTFS rejects US because of a historical issue. (See Issue #106 on GitHub)
+       */
 			if (tmp_name[j] == '/' || tmp_name[j] == 0x1f || tmp_name[j] == 0x00) {
 				tmp_name[j] = '%';
 				tmp_name[j + 1] = buf_decode[0];
@@ -137,13 +137,13 @@ static int decode_entry_name(char **new_name, const char *name)
 		}
 
 		/*
-		 * Allow '/' and US (0x1f) but replace to '_' for supporting bad manner writer
-		 */
+     * Allow '/' and US (0x1f) but replace to '_' for supporting bad manner writer
+     */
 		/*
-		 * TODO: Need to remove US (0x1f) from this list. Because
-		 * US shall be accepted as a part of filename.
-		 * Now LTFS rejects US because of a historical issue. (See Issue #106 on GitHub)
-		 */
+     * TODO: Need to remove US (0x1f) from this list. Because
+     * US shall be accepted as a part of filename.
+     * Now LTFS rejects US because of a historical issue. (See Issue #106 on GitHub)
+     */
 		if (tmp_name[j] == '/' || tmp_name[j] == 0x1f) {
 			tmp_name[j] = '_';
 			ltfsmsg(LTFS_INFO, 17257I, name);
@@ -571,7 +571,7 @@ static int _xml_parse_ip_criteria(xmlTextReaderPtr reader, struct ltfs_index *id
 	}
 
 	/* Make an active copy of these index criteria. The caller can override idx->index_criteria
-	 * later without affecting the criteria stored in future indexes (idx->original_criteria). */
+   * later without affecting the criteria stored in future indexes (idx->original_criteria). */
 	if (index_criteria_dup_rules(&idx->index_criteria, &idx->original_criteria) < 0) {
 		/* Could not duplicate index criteria rules */
 		ltfsmsg(LTFS_ERR, 11301E);
@@ -695,7 +695,7 @@ static int _xml_parse_one_extent(xmlTextReaderPtr reader, int idx_version, struc
 	check_required_tags();
 
 	/* Add extent to the extent list, performing appropriate reordering if necessary.
-	 * Also make sure the new extent does not overlap with any existing extents. */
+   * Also make sure the new extent does not overlap with any existing extents. */
 	if (TAILQ_EMPTY(&d->extentlist))
 		TAILQ_INSERT_TAIL(&d->extentlist, xt, list);
 	else {
@@ -1233,9 +1233,9 @@ static int _xml_parse_dir_contents(xmlTextReaderPtr reader, struct dentry *dir, 
 	}
 
 	/* At first, update platform_safe_name without replacing invalid chars in the directory.
-	   The file or directory of which name contains invalid char is skipped in this step.
-	   After that update platfrom_safe_name regarding skipped file or directory as the second
-	   step. These steps make a prioritization of name mangling.*/
+     The file or directory of which name contains invalid char is skipped in this step.
+     After that update platfrom_safe_name regarding skipped file or directory as the second
+     step. These steps make a prioritization of name mangling.*/
 	ret = fs_update_platform_safe_names(dir, idx, list);
 	if (ret < 0) {
 		return ret;
@@ -1620,8 +1620,8 @@ static int _xml_parse_schema(xmlTextReaderPtr reader, struct ltfs_index *idx, st
 	}
 
 	/* For older index versions, assume we handle UIDs correctly.
-	 * The idx->uid_number field is automatically initialized to 1, so it will be set correctly
-	 * once all files and directories are parsed. */
+   * The idx->uid_number field is automatically initialized to 1, so it will be set correctly
+   * once all files and directories are parsed. */
 	if (idx->version < IDX_VERSION_UID) check_required_tag(7);
 
 	check_required_tags();
@@ -1670,8 +1670,8 @@ static int _xml_symlinkinfo_from_file(const char *filename, struct dentry *d)
 	}
 
 	/* Workaround for old libxml2 version on OS X 10.5: the method used to preserve
-	 * unknown tags modifies the behavior of xmlFreeTextReader so that an additional
-	 * xmlDocFree call is required to free all memory. */
+   * unknown tags modifies the behavior of xmlFreeTextReader so that an additional
+   * xmlDocFree call is required to free all memory. */
 	doc = xmlTextReaderCurrentDoc(reader);
 
 	while (true) {
@@ -1717,8 +1717,8 @@ static int _xml_extentlist_from_file(const char *filename, struct dentry *d)
 	}
 
 	/* Workaround for old libxml2 version on OS X 10.5: the method used to preserve
-	 * unknown tags modifies the behavior of xmlFreeTextReader so that an additional
-	 * xmlDocFree call is required to free all memory. */
+   * unknown tags modifies the behavior of xmlFreeTextReader so that an additional
+   * xmlDocFree call is required to free all memory. */
 	doc = xmlTextReaderCurrentDoc(reader);
 
 	while (
@@ -1814,8 +1814,8 @@ int xml_schema_from_file(const char *filename, struct ltfs_index *idx, struct lt
 	}
 
 	/* Workaround for old libxml2 version on OS X 10.5: the method used to preserve
-	 * unknown tags modifies the behavior of xmlFreeTextReader so that an additional
-	 * xmlDocFree call is required to free all memory. */
+   * unknown tags modifies the behavior of xmlFreeTextReader so that an additional
+   * xmlDocFree call is required to free all memory. */
 	doc = xmlTextReaderCurrentDoc(reader);
 	ret = _xml_parse_schema(reader, idx, vol);
 	if (ret < 0) ltfsmsg(LTFS_ERR, 17012E, filename, ret);
@@ -1914,7 +1914,7 @@ int xml_schema_from_tape(uint64_t eod_pos, struct ltfs_volume *vol)
 #endif
 
 	/* Workaround for old libxml2 version on OS X 10.5. See comment in xml_schema_from_file()
-	 * for details. */
+   * for details. */
 	doc = xmlTextReaderCurrentDoc(reader);
 
 	/* Generate the Index. */

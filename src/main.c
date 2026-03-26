@@ -74,8 +74,6 @@ volatile char *copyright = LTFS_COPYRIGHT_0 "\n" LTFS_COPYRIGHT_1 "\n" LTFS_COPY
 
 /* Defined in src/ltfs.c */
 extern struct fuse_operations ltfs_ops;
-/* Defined in messages/ */
-extern char bin_ltfs_dat[];
 
 /**
  * Command line parsing
@@ -345,12 +343,12 @@ int permissions_setup(struct ltfs_fuse_data *priv)
 	}
 
 	/* Uncomment to apply the current umask to the default permissions, as vfat does.
-	mode = umask(0);
-	umask(mode);
-	if (! priv->force_umask && ! priv->force_fmask)
-		priv->file_mode = (S_IFREG | 0777) & ~mode;
-	if (! priv->force_umask && ! priv->force_dmask)
-		priv->dir_mode = (S_IFDIR | 0777) & ~mode;
+  mode = umask(0);
+  umask(mode);
+  if (! priv->force_umask && ! priv->force_fmask)
+          priv->file_mode = (S_IFREG | 0777) & ~mode;
+  if (! priv->force_umask && ! priv->force_dmask)
+          priv->dir_mode = (S_IFDIR | 0777) & ~mode;
 */
 
 	return 0;
@@ -546,7 +544,6 @@ int main(int argc, char **argv)
 	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
 	struct ltfs_fuse_data *priv = (struct ltfs_fuse_data *)calloc(1, sizeof(struct ltfs_fuse_data));
 	char *lang, **mount_options, **snmp_options, *cmd_args;
-	void *message_handle;
 
 	priv->verbose = LTFS_INFO;
 	priv->allow_other = (geteuid() == 0) ? 1 : 0;
@@ -556,8 +553,8 @@ int main(int argc, char **argv)
 	lang = getenv("LANG");
 	if (!lang) {
 		fprintf(stderr,
-						"LTFS9015W Setting the locale to 'en_US.UTF-8'. If this is wrong, please set the LANG environment variable "
-						"before starting ltfs.\n");
+						"LTFS9015W Setting the locale to 'en_US.UTF-8'. If this is wrong, "
+						"please set the LANG environment variable before starting ltfs.\n");
 		ret = setenv("LANG", "en_US.UTF-8", 1);
 		if (ret) {
 			fprintf(stderr, "LTFS9016E Cannot set the LANG environment variable\n");
@@ -566,19 +563,13 @@ int main(int argc, char **argv)
 	}
 
 	/* Start up libltfs with the default logging level. User overrides are
-	 * processed later, after command line parsing. */
+   * processed later, after command line parsing. */
 	openlog("ltfs", LOG_PID, LOG_USER);
 	ret = ltfs_init(LTFS_INFO, true, true);
 	if (ret < 0) {
 		/* Failed to initialize libltfs */
 		ltfsmsg(LTFS_ERR, 10000E, ret);
-	}
-
-	/* Register messages with libltfs */
-	ret = ltfsprintf_load_plugin("bin_ltfs", bin_ltfs_dat, &message_handle);
-	if (ret < 0) {
-		ltfsmsg(LTFS_ERR, 10012E, ret);
-		return 1;
+		return -1;
 	}
 
 	if (!priv) {
@@ -672,7 +663,7 @@ int main(int argc, char **argv)
 
 	/* Show build time information */
 	ltfsmsg(LTFS_INFO, 14105I, BUILD_SYS_FOR);
-	ltfsmsg(LTFS_INFO, 14106I, BUILD_SYS_COMPILER_VER);
+	ltfsmsg(LTFS_INFO, 14106I, BUILD_SYS_GCC);
 
 	/* Show run time information */
 	show_runtime_system_info();
@@ -681,7 +672,7 @@ int main(int argc, char **argv)
 	if (priv->device_list) {
 		ret = show_device_list(priv);
 		ltfs_finish();
-		return (ret != 0) ? 0 : 1;
+		return ret ? 1 : 0;
 	}
 
 	/* Validate sync option */
@@ -704,7 +695,8 @@ int main(int argc, char **argv)
 			return 1;
 	}
 
-	/* Enable correct permissions checking in the kernel if any permission overrides are set */
+	/* Enable correct permissions checking in the kernel if any permission
+   * overrides are set */
 	ret = fuse_opt_add_arg(&args, "-odefault_permissions");
 	if (ret < 0) {
 		/* Could not enable FUSE option */
@@ -722,7 +714,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	/* Unlink objects from the file system instead of having them renamed to .fuse_hidden */
+	/* Unlink objects from the file system instead of having them renamed to
+   * .fuse_hidden */
 	ret = fuse_opt_add_arg(&args, "-ohard_remove");
 	if (ret < 0) {
 		/* Could not enable FUSE option */
@@ -751,10 +744,10 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	/*
-	 *  Disable vnode cache to return correct owner.
-	 *  LTFS will return the owner as accessed user, vnode cache will return previous user
-	 *  when the cache is hot.
-	 */
+   *  Disable vnode cache to return correct owner.
+   *  LTFS will return the owner as accessed user, vnode cache will return previous user
+   *  when the cache is hot.
+   */
 	fuse_opt_add_arg(&args, "-onovncache");
 	if (ret < 0) {
 		/* Could not enable FUSE option */
@@ -846,11 +839,15 @@ int main(int argc, char **argv)
 
 	/* Make sure we have a device name */
 	if (!priv->devname) {
-		priv->devname = ltfs_default_device_name(priv->tape_plugin.ops);
-		if (!priv->devname) {
-			/* The backend \'%s\' does not have a default device */
-			ltfsmsg(LTFS_ERR, 14009E, priv->tape_backend_name);
-			return 1;
+		/* Accept no devname when accessible index file is specified by '-o
+     * rollback_mount' */
+		if (!priv->rollback_str || access(priv->rollback_str, R_OK)) {
+			priv->devname = ltfs_default_device_name(priv->tape_plugin.ops);
+			if (!priv->devname) {
+				/* The backend \'%s\' does not have a default device */
+				ltfsmsg(LTFS_ERR, 14009E, priv->tape_backend_name);
+				return 1;
+			}
 		}
 	}
 
@@ -876,7 +873,6 @@ int main(int argc, char **argv)
 	plugin_unload(&priv->tape_plugin);
 
 	/* Free data structures */
-	ltfsprintf_unload_plugin(message_handle);
 	ltfs_finish();
 	config_file_free(priv->config);
 	free(priv);
@@ -937,7 +933,7 @@ int single_drive_main(struct fuse_args *args, struct ltfs_fuse_data *priv)
 	}
 
 	/* If the local inode space is big enough, have FUSE pass through our UIDs as inode
-	 * numbers instead of generating its own. */
+   * numbers instead of generating its own. */
 	if (sizeof(ino_t) >= 8) {
 		ret = fuse_opt_add_arg(args, "-ouse_ino");
 		if (ret < 0) {
@@ -1161,8 +1157,8 @@ int single_drive_main(struct fuse_args *args, struct ltfs_fuse_data *priv)
 
 #ifdef __APPLE__
 	/*
-	 *  Set the volume name (logical) when LTFS runs on OS X
-	 */
+   *  Set the volume name (logical) when LTFS runs on OS X
+   */
 	if (priv->data->index->volume_name.name) {
 		ret = asprintf(&opt_volname, "-ovolname=%s(%s)", priv->data->index->volume_name.name, "ltfs");
 		if (ret < 0) {

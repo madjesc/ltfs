@@ -142,7 +142,7 @@ int _ltfs_fsraw_write_data_unlocked(char partition,
 	}
 
 	/* Can only write multiple repetitions if the input buffer contains an integer
-	 * number of blocks */
+   * number of blocks */
 	if (repetitions > 1 && count % blocksize != 0) {
 		ltfsmsg(LTFS_ERR, 11068E);
 		writetoread_mrsw(&vol->lock);
@@ -176,7 +176,7 @@ int _ltfs_fsraw_write_data_unlocked(char partition,
 	}
 
 	/* We're about to write. Let other users of the volume know the target partition does not
-	 * end in an index. */
+   * end in an index. */
 	if (partition == ltfs_ip_id(vol))
 		vol->ip_index_file_end = false;
 	else { /* partition == ltfs_dp_id(vol) */
@@ -393,9 +393,9 @@ int _ltfs_fsraw_add_extent_unlocked(struct dentry *d,
 	}
 
 	/*
-	 *  Mark file contents is update.
-	 *  No need to mark at this time but reserve this value for fueture release
-	 */
+   *  Mark file contents is update.
+   *  No need to mark at this time but reserve this value for fueture release
+   */
 	d->extents_dirty = true;
 	d->dirty = true;
 	releasewrite_mrsw(&d->meta_lock);
@@ -414,7 +414,7 @@ int ltfs_fsraw_add_extent(struct dentry *d, struct extent_info *ext, bool update
 	CHECK_ARG_NULL(vol, -LTFS_NULL_ARG);
 
 	/* This function is not called until blocks are already on the tape, so the
-	 * out of space condition is not a problem. */
+   * out of space condition is not a problem. */
 	ret = ltfs_get_partition_readonly(ltfs_ip_id(vol), vol);
 	if (ret < 0 && ret != -LTFS_NO_SPACE && ret != -LTFS_LESS_SPACE) return ret;
 	ret = ltfs_get_partition_readonly(ltfs_dp_id(vol), vol);
@@ -463,10 +463,10 @@ int ltfs_fsraw_cleanup_extent(struct dentry *d,
 					}
 
 					/*
-					 * err_pos has the first block number that tape drive has it on buffer
-					 * but not transferred to the medium.
-					 * It means position (err_pos-1) is the last block on the medium.
-					 */
+           * err_pos has the first block number that tape drive has it on buffer
+           * but not transferred to the medium.
+           * It means position (err_pos-1) is the last block on the medium.
+           */
 					if (extent_last.partition == err_pos.partition && err_pos.block <= extent_last.block) {
 						ltfsmsg(LTFS_INFO,
 										11334I,

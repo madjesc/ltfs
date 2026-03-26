@@ -248,9 +248,9 @@ void *key_format_ltfs_init(struct ltfs_volume *vol)
 
 #ifndef mingw_PLATFORM
 	/*
-	 * On Windows, this function is called at not only KFL_UNINITIALIZED but also KFL_INITIALIZED, KFL_CLEARED
-	 * and KFL_DESTROYED because the process keep running after a user eject a cartridge.
-	 */
+   * On Windows, this function is called at not only KFL_UNINITIALIZED but also KFL_INITIALIZED, KFL_CLEARED
+   * and KFL_DESTROYED because the process keep running after a user eject a cartridge.
+   */
 	if (state != KFL_UNINITIALIZED) {
 #	ifdef KMI_SIMPLE
 		ltfsmsg(LTFS_ERR, 15505E, state, KFL_UNINITIALIZED, __FUNCTION__);

@@ -294,8 +294,8 @@ int filedebug_conf_tc_read_xml(char *filename, struct filedebug_conf_tc *conf)
 	}
 
 	/* Workaround for old libxml2 version on OS X 10.5: the method used to preserve
-	 * unknown tags modifies the behavior of xmlFreeTextReader so that an additional
-	 * xmlDocFree call is required to free all memory. */
+   * unknown tags modifies the behavior of xmlFreeTextReader so that an additional
+   * xmlDocFree call is required to free all memory. */
 	doc = xmlTextReaderCurrentDoc(reader);
 	ret = _filedebug_tc_parse_schema(reader, conf);
 	if (ret < 0) {

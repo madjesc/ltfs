@@ -323,7 +323,7 @@ static void emulate_seek_wait(struct filedebug_data *state, struct tc_position *
 	if (dest->partition != state->current_position.partition) {
 		if (current_wrap == target_wrap) {
 			/* Ensure that the cost of moving the head to locate the target wrap
-			 * is taken into account. */
+       * is taken into account. */
 			current_wrap += 2;
 		}
 	}
@@ -540,7 +540,7 @@ int filedebug_open(const char *name, void **handle)
 		}
 
 		/* The dirname() function may return a pointer to static storage
-		   that may then be overwritten by subsequent calls to dirname(). */
+       that may then be overwritten by subsequent calls to dirname(). */
 		p = dirname(tmp);
 		int len = (strlen(p) + 1) * sizeof(char);
 		state->dirbase = (char *)calloc(strlen(p) + 1, sizeof(char));
@@ -712,10 +712,10 @@ int filedebug_read(void *device, char *buf, size_t count, struct tc_position *po
 
 	if (state->conf.dummy_io && state->current_position.partition && state->current_position.block > 6) {
 		/*
-		 *  Dummy I/O mode
-		 *  No actual data is written to partition1 (DP), hence we can simply
-		 *  advance the current block address.
-		 */
+     *  Dummy I/O mode
+     *  No actual data is written to partition1 (DP), hence we can simply
+     *  advance the current block address.
+     */
 
 		++state->current_position.block;
 		pos->block = state->current_position.block;
@@ -879,9 +879,9 @@ int filedebug_write(void *device, const char *buf, size_t count, struct tc_posit
 
 	if (state->conf.dummy_io && state->current_position.partition && state->current_position.block > 6) {
 		/*
-		 *  Dummy I/O mode
-		 *  Do not write any data on partition1 (DP)
-		 */
+     *  Dummy I/O mode
+     *  Do not write any data on partition1 (DP)
+     */
 
 		++state->current_position.block;
 		pos->block = state->current_position.block;
@@ -951,7 +951,7 @@ int filedebug_write(void *device, const char *buf, size_t count, struct tc_posit
 					 state->current_position.block >= state->p1_warning)
 		pos->early_warning = true;
 	/* Programmable early warning is set only when position moves into
-	   programmable early warning zone in write() method. */
+     programmable early warning zone in write() method. */
 	if (state->p0_p_warning && state->current_position.partition == 0 &&
 			state->current_position.block == state->p0_p_warning)
 		pos->programmable_early_warning = true;
@@ -989,9 +989,9 @@ int filedebug_writefm(void *device, size_t count, struct tc_position *pos, bool 
 
 	if (state->conf.dummy_io && state->current_position.partition && state->current_position.block > 6) {
 		/*
-		 *  Dummy I/O mode
-		 *  Do not write any data on partition1 (DP)
-		 */
+     *  Dummy I/O mode
+     *  Do not write any data on partition1 (DP)
+     */
 
 		for (i = 0; i < count; ++i) {
 			++state->current_position.block;
@@ -2211,8 +2211,8 @@ int filedebug_get_parameters(void *device, struct tc_drive_param *params)
 	if (state->conf.emulate_readonly) params->write_protect |= VOL_PHYSICAL_WP;
 
 	/* TODO: Following field shall be implemented in the future */
-	//params->is_encrypted          = false;
-	//params->is_worm               = state->is_worm;
+	// params->is_encrypted          = false;
+	// params->is_worm               = state->is_worm;
 
 	return DEVICE_GOOD;
 }
@@ -2863,18 +2863,4 @@ struct tape_ops filedebug_handler = {
 struct tape_ops *tape_dev_get_ops(void)
 {
 	return &filedebug_handler;
-}
-
-#ifndef mingw_PLATFORM
-extern char tape_generic_file_dat[];
-#endif
-
-const char *tape_dev_get_message_bundle_name(void **message_data)
-{
-#ifndef mingw_PLATFORM
-	*message_data = tape_generic_file_dat;
-#else
-	*message_data = NULL;
-#endif
-	return "tape_generic_file";
 }

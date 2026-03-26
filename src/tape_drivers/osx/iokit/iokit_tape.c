@@ -195,9 +195,9 @@ static int _set_lbp(void *device, bool enable)
 			lbp_method = REED_SOLOMON_CRC;
 	} else {
 		/*
-		 * LTO drive doesn't have a modepage to support CRC32C or not
-		 * So use CRC32C based on it's generation
-		 */
+     * LTO drive doesn't have a modepage to support CRC32C or not
+     * So use CRC32C based on it's generation
+     */
 		if (DRIVE_GEN(priv->drive_type) >= 0x07)
 			lbp_method = CRC32C_CRC;
 		else
@@ -898,9 +898,9 @@ int iokit_open(const char *devname, void **handle)
 
 		if (ret < 0) {
 			/*
-			 * The drive doesn't support RSOC, buffer overrun or parse error
-			 * try to initialize the timeout table from drive vendor and drive type
-			 */
+       * The drive doesn't support RSOC, buffer overrun or parse error
+       * try to initialize the timeout table from drive vendor and drive type
+       */
 			ltfsmsg(LTFS_INFO, 30872I, "vendor and device");
 			ret = init_timeout(priv->vendor, &priv->timeouts, priv->drive_type);
 			if (!priv->timeouts) {
@@ -911,9 +911,9 @@ int iokit_open(const char *devname, void **handle)
 		free(rsoc_buf);
 	} else {
 		/*
-		 * Memory allocation failure, try to initialize the timeout table
-		 * from drive vendor and drive type
-		 */
+     * Memory allocation failure, try to initialize the timeout table
+     * from drive vendor and drive type
+     */
 		ltfsmsg(LTFS_INFO, 30872I, "vendor and device");
 		init_timeout(priv->vendor, &priv->timeouts, priv->drive_type);
 		if (!priv->timeouts) {
@@ -1052,12 +1052,12 @@ int iokit_close_raw(void *device)
 int iokit_is_connected(const char *devname)
 {
 	/*
-	 * Temporary return false here.
-	 * Current iokit driver uses index number as a devname and this
-	 * index may be changed by drive hotplug.
-	 * However LTFS's library code is assuming fixed devname
-	 * during running LTFS even though drive plug/unplug.
-	 */
+   * Temporary return false here.
+   * Current iokit driver uses index number as a devname and this
+   * index may be changed by drive hotplug.
+   * However LTFS's library code is assuming fixed devname
+   * during running LTFS even though drive plug/unplug.
+   */
 	return false;
 }
 
@@ -1253,10 +1253,10 @@ static int _cdb_read(void *device, char *buf, size_t size, boolean_t sili)
 					if (!req.actual_xfered || diff_len != req.resid) {
 #if SUPPORT_BUGGY_IFS
 						/*
-						 * A few I/Fs, like thunderbolt/SAS converter or USB/SAS converter,
-						 * cannot handle actual transfer length and residual length correctly
-						 * In this case, LTFS will trust SCSI sense.
-						 */
+             * A few I/Fs, like thunderbolt/SAS converter or USB/SAS converter,
+             * cannot handle actual transfer length and residual length correctly
+             * In this case, LTFS will trust SCSI sense.
+             */
 						if (diff_len < 0) {
 							ltfsmsg(LTFS_INFO, 30820I, diff_len, (int)(size - diff_len));	 // "Detect overrun condition"
 							ret = -EDEV_OVERRUN;
@@ -1357,14 +1357,14 @@ read_retry:
 		goto read_retry;
 	} else if (!(pos->block) && unusual_size && (ret == (int32_t)size || ret == -EDEV_FILEMARK_DETECTED)) {
 		/*
-		 *  Try to read again without sili bit, because some I/F doesn't support SILION read correctly
-		 *  like
-		 *    - USB connected LTO drive (ret == size)
-		 *    - ATTO ThunderLink        (ret == -EDEV_FILEMARK_DETECTED)
-		 *
-		 *  This recovery procedure is executed only when reading VOL1 on both partiton. Once this memod
-		 *  is completed successfully, the iokit backend uses SILI off read always.
-		 */
+     *  Try to read again without sili bit, because some I/F doesn't support SILION read correctly
+     *  like
+     *    - USB connected LTO drive (ret == size)
+     *    - ATTO ThunderLink        (ret == -EDEV_FILEMARK_DETECTED)
+     *
+     *  This recovery procedure is executed only when reading VOL1 on both partiton. Once this memod
+     *  is completed successfully, the iokit backend uses SILI off read always.
+     */
 		pos_retry.partition = pos->partition;
 		ret = iokit_locate(device, pos_retry, pos);
 		if (ret) {
@@ -3403,12 +3403,12 @@ int iokit_get_parameters(void *device, struct tc_drive_param *params)
 
 			/* TODO: Following field shall be implemented in the future */
 			/*
-			if ( (priv->cart_type & 0xF0) == 0xC0 || (priv->cart_type & 0xF0) == 0xA0)
-				params->is_worm = true;
+      if ( (priv->cart_type & 0xF0) == 0xC0 || (priv->cart_type & 0xF0) == 0xA0)
+              params->is_worm = true;
 
-			if (priv->density_code & TEST_CRYPTO)
-				params->is_encrypted = true;
-			*/
+      if (priv->density_code & TEST_CRYPTO)
+              params->is_encrypted = true;
+      */
 		} else {
 			unsigned char buf[MODE_DEVICE_CONFIG_SIZE];
 
@@ -3421,11 +3421,11 @@ int iokit_get_parameters(void *device, struct tc_drive_param *params)
 
 			/* TODO: Following field shall be implemented in the future */
 			/*
-			if ( (priv->cart_type & 0x0F) == 0x0C)
-				params->is_worm = true;
+      if ( (priv->cart_type & 0x0F) == 0x0C)
+              params->is_worm = true;
 
-			// TODO: Store is_crypto based on LP17:200h
-			*/
+      // TODO: Store is_crypto based on LP17:200h
+      */
 		}
 	} else {
 		params->cart_type = priv->cart_type;
@@ -3454,9 +3454,9 @@ int iokit_get_eod_status(void *device, int part)
 	struct iokit_data *priv = (struct iokit_data *)device;
 
 	/*
-	 * This feature requires new tape drive firmware
-	 * to support logpage 17h correctly
-	 */
+   * This feature requires new tape drive firmware
+   * to support logpage 17h correctly
+   */
 	unsigned char logdata[LOGSENSEPAGE];
 	unsigned char buf[16];
 	unsigned int i;
@@ -3805,11 +3805,11 @@ int iokit_set_key(void *device, const unsigned char *keyalias, const unsigned ch
 	struct iokit_data *priv = (struct iokit_data *)device;
 
 	/*
-	 * Encryption  Decryption     Key         DKi      keyalias
-	 *    Mode        Mode
-	 * 0h Disable  0h Disable  Prohibited  Prohibited    NULL
-	 * 2h Encrypt  3h Mixed    Mandatory    Optional    !NULL
-	 */
+   * Encryption  Decryption     Key         DKi      keyalias
+   *    Mode        Mode
+   * 0h Disable  0h Disable  Prohibited  Prohibited    NULL
+   * 2h Encrypt  3h Mixed    Mandatory    Optional    !NULL
+   */
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_ENTER(REQ_TC_SETKEY));
 	ret = is_encryption_capable(device);
 	if (ret < 0) {
@@ -3834,27 +3834,31 @@ int iokit_set_key(void *device, const unsigned char *keyalias, const unsigned ch
 	ltfs_u16tobe(buffer + 2, size - 4);
 	buffer[4] = 0x40; /* SCOPE: 010b All I_T Nexus, LOCK: 0 */
 	/*
-	 * CEEM: 00b Vendor specific
-	 * RDMC: 00b The device entity shall mark each encrypted logical block per the default setting
-	 *           for the algorithm.
-	 * SDK:   0b The logical block encryption key sent in this page shall be the logical block
-	 *           encryption key used for both encryption and decryption.
-	 * CKOD:  0b The demounting of a volume shall not affect the logical block encryption parameters.
-	 * CKORP: 0b Clear key on reservation preempt (CKORP) bit
-	 * CKORL: 0b Clear key on reservation loss (CKORL) bit
-	 */
+   * CEEM: 00b Vendor specific
+   * RDMC: 00b The device entity shall mark each encrypted logical block per the default setting
+   *           for the algorithm.
+   * SDK:   0b The logical block encryption key sent in this page shall be the logical block
+   *           encryption key used for both encryption and decryption.
+   * CKOD:  0b The demounting of a volume shall not affect the logical block encryption parameters.
+   * CKORP: 0b Clear key on reservation preempt (CKORP) bit
+   * CKORL: 0b Clear key on reservation loss (CKORL) bit
+   */
 	buffer[5] = 0x00;
+
 	enum
 	{
 		DISABLE = 0,
 		EXTERNAL = 1,
 		ENCRYPT = 2
 	};
+
 	buffer[6] = keyalias ? ENCRYPT : DISABLE; /* ENCRYPTION MODE */
+
 	enum
 	{ /* DISABLE = 0, */ RAW = 1,
 		DECRYPT = 2,
 		MIXED = 3 };
+
 	buffer[7] = keyalias ? MIXED : DISABLE;									/* DECRYPTION MODE */
 	buffer[8] = 1;																					/* ALGORITHM INDEX */
 	buffer[9] = 0;																					/* LOGICAL BLOCK ENCRYPTION KEY FORMAT: plain-text key */
@@ -3894,10 +3898,10 @@ out:
 static void show_hex_dump(const char *const title, const uint8_t *const buf, const size_t size)
 {
 	/*
-	 * "         1         2         3         4         5         6         7         8"
-	 * "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
-	 * "xxxxxx  00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n" < 100
-	 */
+   * "         1         2         3         4         5         6         7         8"
+   * "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
+   * "xxxxxx  00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n" < 100
+   */
 	char *const s = calloc((size / 0x10 + 1) * 100, sizeof(char));
 	char *p = s;
 	uint i = 0;
@@ -3948,9 +3952,9 @@ int iokit_get_keyalias(void *device, unsigned char **keyalias)
 	*keyalias = NULL;
 
 	/*
-	 * 1st loop: Get the page length.
-	 * 2nd loop: Get full data in the page.
-	 */
+   * 1st loop: Get the page length.
+   * 2nd loop: Get full data in the page.
+   */
 	for (i = 0; i < 2; ++i) {
 		free(buffer);
 		ret = _cdb_spin(device, sps, &buffer, &size);
@@ -3960,6 +3964,7 @@ int iokit_get_keyalias(void *device, unsigned char **keyalias)
 	show_hex_dump("SPIN:", buffer, size + 4);
 
 	const unsigned char encryption_status = buffer[12] & 0xF;
+
 	enum
 	{
 		ENC_STAT_INCAPABLE = 0,
@@ -3971,6 +3976,7 @@ int iokit_get_keyalias(void *device, unsigned char **keyalias)
 		ENC_STAT_ENCRYPTED_BY_OTHER_KEY = 6,
 		ENC_STAT_RESERVED, /* 7h-Fh */
 	};
+
 	if (encryption_status == ENC_STAT_ENCRYPTED_BY_UNSUPPORTED_ALGORITHM ||
 			encryption_status == ENC_STAT_ENCRYPTED_BY_SUPPORTED_ALGORITHM ||
 			encryption_status == ENC_STAT_ENCRYPTED_BY_OTHER_KEY) {
@@ -4252,12 +4258,4 @@ struct tape_ops *tape_dev_get_ops(void)
 	if (!vendor_table) vendor_table = ibm_tape_errors;
 
 	return &iokit_handler;
-}
-
-extern char tape_iokit_dat[];
-
-const char *tape_dev_get_message_bundle_name(void **message_data)
-{
-	*message_data = tape_iokit_dat;
-	return "tape_iokit";
 }

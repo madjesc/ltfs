@@ -269,17 +269,3 @@ struct iosched_ops *iosched_get_ops(void)
 {
 	return &fcfs_ops;
 }
-
-#ifndef mingw_PLATFORM
-extern char iosched_fcfs_dat[];
-#endif
-
-const char *iosched_get_message_bundle_name(void **message_data)
-{
-#ifndef mingw_PLATFORM
-	*message_data = iosched_fcfs_dat;
-#else
-	*message_data = NULL;
-#endif
-	return "iosched_fcfs";
-}

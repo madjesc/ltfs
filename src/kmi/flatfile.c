@@ -88,6 +88,7 @@ static int convert_option(const unsigned char *const path, unsigned char **dk_li
 		const char *const name;
 		const unsigned char separetor;
 	} tag[2] = { { "DK=", '/' }, { "DKi=", ':' } };
+
 	int ret = 0;
 	int dk_list_length = 1; /* for '\0' at the end of string */
 	int dk_list_offset = 0;
@@ -206,12 +207,12 @@ int flatfile_get_key(unsigned char **keyalias, unsigned char **key, void *const 
 	const int ret = key_format_ltfs_get_key(keyalias, key, kmi_handle, dk_list, priv.dki_for_format);
 
 	/*
- *  Cache DK and DKi for revalidation at tape drive POR
- *	if (dk_list) {
- *		free(dk_list);
- *		dk_list = NULL;
- *	}
- */
+   *  Cache DK and DKi for revalidation at tape drive POR
+   *	if (dk_list) {
+   *		free(dk_list);
+   *		dk_list = NULL;
+   *	}
+   */
 	return ret;
 }
 
@@ -270,18 +271,4 @@ struct kmi_ops flatfile_ops = {
 struct kmi_ops *kmi_get_ops(void)
 {
 	return &flatfile_ops;
-}
-
-#ifndef mingw_PLATFORM
-extern char kmi_flatfile_dat[];
-#endif
-
-const char *kmi_get_message_bundle_name(void **const message_data)
-{
-#ifndef mingw_PLATFORM
-	*message_data = kmi_flatfile_dat;
-#else
-	*message_data = NULL;
-#endif
-	return "kmi_flatfile";
 }

@@ -98,6 +98,7 @@
  */
 #define LTFS_TRACE_SIGNATURE "LTFS_TRC"
 #pragma pack(push, 1)
+
 struct trace_header
 {
 	char signature[9];							 /**< Signature for LTFS trace */
@@ -109,47 +110,57 @@ struct trace_header
 	uint32_t trace_size;						 /**< Whole size of trace (all headers and bodies) */
 	uint32_t crc;										 /**< CRC (reserved for future use) */
 };
+
 #pragma pack(pop)
 
 /*
  * Definitions for LTFS Request header information
  */
 #pragma pack(push, 1)
+
 struct request_header
 {
 	uint32_t header_size;			 /**< Size of request header */
 	uint32_t num_of_req_trace; /**< Number of request trace descriptrs (always 1) */
+
 	struct request_trace_descriptor
 	{
 		uint32_t size_of_entry; /**< Size of entry */
 		uint32_t num_of_entry;	/**< Number of entry */
 	} req_t_desc;							/**< Request header descriptor */
+
 	uint32_t crc;							/**< CRC (reserved for future use) */
 };
+
 #pragma pack(pop)
 
 /*
  * Definitions for LTFS function trace header
  */
 #pragma pack(push, 1)
+
 struct function_trace_header
 {
 	uint32_t header_size;			/**< Size of function trace header */
 	uint32_t num_of_fn_trace; /**< Number of function trace */
+
 	struct function_trace_descriptor
 	{
 		uint32_t type;					/**< Function trace type (admin or filesystem) */
 		uint32_t size_of_entry; /**< Size of function trace entry */
 		uint32_t num_of_entry;	/**< Number of function trace entries */
 	} *req_t_desc;
-	uint32_t crc;							/**< CRC (reserved for future use) */
+
+	uint32_t crc; /**< CRC (reserved for future use) */
 };
+
 #pragma pack(pop)
 
 /*
  * Definitions for LTFS function trace data
  */
 #pragma pack(push, 1)
+
 struct function_entry
 {
 	uint64_t time;
@@ -157,6 +168,7 @@ struct function_entry
 	uint64_t info1;
 	uint64_t info2;
 };
+
 #pragma pack(pop)
 
 #define FN_TRACE_ENTRY_SIZE (sizeof(struct function_entry))
@@ -187,6 +199,7 @@ struct filesystem_trace_list
  */
 #define ADMIN_FN_TRACE_ENTRIES 256
 #define ADMIN_FN_TRACE_SIZE (ADMIN_FN_TRACE_ENTRIES * FN_TRACE_ENTRY_SIZE)
+
 struct admin_function_trace
 {
 	MultiReaderSingleWriter trace_lock; /**< Lock for trace data */
@@ -206,6 +219,7 @@ struct admin_trace_list
  * Definitions for Tail Q of Admin function trace
  */
 #define MAX_ADMIN_COMP_NUM 512
+
 struct admin_completed_function_trace
 {
 	TAILQ_ENTRY(admin_completed_function_trace) list;

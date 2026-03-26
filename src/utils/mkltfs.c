@@ -83,20 +83,16 @@ static
 #define INDEX_PART_NUM 0
 #define DATA_PART_NUM 1
 
-#ifdef mingw_PLATFORM
-char *bin_mkltfs_dat;
-#else
-extern char bin_mkltfs_dat[];
-#endif
-
 struct other_format_opts
 {
 	struct config_file *config; /**< Configuration data read from the global LTFS config file */
 	char *devname;							/**< Device to format */
 	char *backend_path;					/**< Path to tape backend shared library */
-	char *kmi_backend_name;			/**< Name or path to the key manager interface backend library */
+	char *kmi_backend_name;			/**< Name or path to the key manager interface
+                                   backend library */
 	char *volume_name;					/**< Human-readable volume name */
-	char *filterrules;					/**< Rules for files that should go to the index partition */
+	char *filterrules;					/**< Rules for files that should go to the index
+                                   partition */
 	char *barcode;							/**< 6-character cartridge barcode number */
 	unsigned long blocksize;		/**< Nominal tape block size */
 	bool enable_compression;		/**< Use compression on the tape? */
@@ -208,16 +204,15 @@ int main(int argc, char **argv)
 	struct ltfs_volume *newvol;
 	struct other_format_opts opt;
 	int ret, log_level, syslog_level, i, cmd_args_len;
-	char *lang = NULL, *cmd_args;
+	char *lang, *cmd_args;
 	const char *config_file = NULL;
-	void *message_handle;
 	int fuse_argc = argc;
 	char **fuse_argv = calloc(fuse_argc, sizeof(char *));
 	if (!fuse_argv) {
 		return MKLTFS_OPERATIONAL_ERROR;
 	}
 	for (i = 0; i < fuse_argc; ++i) {
-		fuse_argv[i] = arch_strdup(argv[i]);
+		fuse_argv[i] = strdup(argv[i]);
 		if (!fuse_argv[i]) {
 			return MKLTFS_OPERATIONAL_ERROR;
 		}
@@ -225,11 +220,11 @@ int main(int argc, char **argv)
 	struct fuse_args args = FUSE_ARGS_INIT(fuse_argc, fuse_argv);
 
 	/* Check for LANG variable and set it to en_US.UTF-8 if it is unset. */
-	arch_getenv(lang, "LANG");
+	lang = getenv("LANG");
 	if (!lang) {
 		fprintf(stderr,
-						"LTFS9015W Setting the locale to 'en_US.UTF-8'. If this is wrong, please set the LANG environment variable "
-						"before starting mkltfs.\n");
+						"LTFS9015W Setting the locale to 'en_US.UTF-8'. If this is wrong, "
+						"please set the LANG environment variable before starting mkltfs.\n");
 		ret = setenv("LANG", "en_US.UTF-8", 1);
 		if (ret) {
 			fprintf(stderr, "LTFS9016E Cannot set the LANG environment variable\n");
@@ -254,13 +249,6 @@ int main(int argc, char **argv)
 		return MKLTFS_OPERATIONAL_ERROR;
 	}
 
-	/* Register messages with libltfs */
-	ret = ltfsprintf_load_plugin("bin_mkltfs", bin_mkltfs_dat, &message_handle);
-	if (ret < 0) {
-		ltfsmsg(LTFS_ERR, 10012E, ret);
-		return MKLTFS_OPERATIONAL_ERROR;
-	}
-
 	/* Set up empty format options and load the configuration file. */
 	memset(&opt, 0, sizeof(struct other_format_opts));
 	opt.enable_compression = true;
@@ -278,7 +266,7 @@ int main(int argc, char **argv)
 		int c = getopt_long(argc, argv, short_options, long_options, &option_index);
 		if (c == -1) break;
 		if (c == 'i') {
-			config_file = arch_strdup(optarg);
+			config_file = strdup(optarg);
 			break;
 		}
 	}
@@ -303,25 +291,25 @@ int main(int argc, char **argv)
 				break;
 			case 'e':
 				free(opt.backend_path);
-				opt.backend_path = arch_strdup(optarg);
+				opt.backend_path = strdup(optarg);
 				break;
 			case 'd':
-				opt.devname = arch_strdup(optarg);
+				opt.devname = strdup(optarg);
 				break;
 			case 'b':
 				opt.blocksize = atoi(optarg);
 				break;
 			case 's':
-				opt.barcode = arch_strdup(optarg);
+				opt.barcode = strdup(optarg);
 				break;
 			case 'n':
-				opt.volume_name = arch_strdup(optarg);
+				opt.volume_name = strdup(optarg);
 				break;
 			case 'r':
-				opt.filterrules = arch_strdup(optarg);
+				opt.filterrules = strdup(optarg);
 				break;
 			case '-':
-				opt.kmi_backend_name = arch_strdup(optarg);
+				opt.kmi_backend_name = strdup(optarg);
 				break;
 			case 'c':
 				opt.enable_compression = false;
@@ -390,14 +378,14 @@ int main(int argc, char **argv)
 			ltfsmsg(LTFS_ERR, 10009E);
 			return MKLTFS_OPERATIONAL_ERROR;
 		}
-		opt.backend_path = arch_strdup(default_backend);
+		opt.backend_path = strdup(default_backend);
 	}
 	if (!opt.kmi_backend_name) {
 		const char *default_backend = config_file_get_default_plugin("kmi", opt.config);
 		if (default_backend)
-			opt.kmi_backend_name = arch_strdup(default_backend);
+			opt.kmi_backend_name = strdup(default_backend);
 		else
-			opt.kmi_backend_name = arch_strdup("none");
+			opt.kmi_backend_name = strdup("none");
 	}
 	if (opt.kmi_backend_name && strcmp(opt.kmi_backend_name, "none") == 0) opt.kmi_backend_name = NULL;
 
@@ -438,17 +426,17 @@ int main(int argc, char **argv)
 		ltfsmsg(LTFS_ERR, 10001E, "mkltfs (arguments)");
 		return MKLTFS_OPERATIONAL_ERROR;
 	}
-	arch_strcat(cmd_args, cmd_args_len, argv[0]);
+	strcat(cmd_args, argv[0]);
 	for (i = 1; i < argc; i++) {
-		arch_strcat(cmd_args, cmd_args_len, " ");
-		arch_strcat(cmd_args, cmd_args_len, argv[i]);
+		strcat(cmd_args, " ");
+		strcat(cmd_args, argv[i]);
 	}
 	ltfsmsg(LTFS_INFO, 15041I, cmd_args);
 	free(cmd_args);
 
 	/* Show build time information */
 	ltfsmsg(LTFS_INFO, 15042I, BUILD_SYS_FOR);
-	ltfsmsg(LTFS_INFO, 15043I, BUILD_SYS_COMPILER, BUILD_SYS_COMPILER_VER);
+	ltfsmsg(LTFS_INFO, 15043I, BUILD_SYS_GCC);
 
 	/* Show run time information */
 	show_runtime_system_info();
@@ -497,11 +485,10 @@ int main(int argc, char **argv)
 	else
 		ret = format_tape(newvol, &opt, &args);
 
-	arch_safe_free(opt.backend_path);
-	arch_safe_free(opt.kmi_backend_name);
-	arch_safe_free(opt.devname);
+	free(opt.backend_path);
+	free(opt.kmi_backend_name);
+	free(opt.devname);
 	config_file_free(opt.config);
-	ltfsprintf_unload_plugin(message_handle);
 	ltfs_finish();
 
 	return ret;

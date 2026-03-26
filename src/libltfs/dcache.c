@@ -100,11 +100,11 @@ int dcache_init(struct libltfs_plugin *plugin, const struct dcache_options *opti
 	}
 
 	/*
-	 * dcache initialization can be performed at any time, even before the tape is mounted.
-	 * For that reason, the dcache_handle is attached to the LTFS Volume structure at this
-	 * point. We lend the dcache_handle to the LTFS Index structure on dcache_load(), which
-	 * must be called after the tape has been mounted.
-	 */
+   * dcache initialization can be performed at any time, even before the tape is mounted.
+   * For that reason, the dcache_handle is attached to the LTFS Volume structure at this
+   * point. We lend the dcache_handle to the LTFS Index structure on dcache_load(), which
+   * must be called after the tape has been mounted.
+   */
 	vol->dcache_handle = priv;
 	return 0;
 }

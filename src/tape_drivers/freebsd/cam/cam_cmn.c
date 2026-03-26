@@ -85,10 +85,10 @@ int camtape_sense2rc(void *device, struct scsi_sense_data *sense, int sense_len)
 												 /*show_errors*/ 1);
 	sense_concat = ((sense_key & 0xff) << 16) | ((asc & 0xff) << 8) | (ascq & 0xff);
 	/*
-	 * If the asc and/or ascq are 0xff (i.e. -1), it will return an error that the
-	 * sense code is vendor unique.  Those are the first fields (before the sense key)
-	 * that will get trimmed off and therefore cause an error
-	 */
+   * If the asc and/or ascq are 0xff (i.e. -1), it will return an error that the
+   * sense code is vendor unique.  Those are the first fields (before the sense key)
+   * that will get trimmed off and therefore cause an error
+   */
 	rc = _sense2errcode(sense_concat, standard_table, NULL, MASK_WITH_SENSE_KEY);
 
 	if (rc == -EDEV_VENDOR_UNIQUE) {
@@ -178,9 +178,9 @@ int camtape_ioctlrc2err(void *device, int fd, struct scsi_sense_data *sense_data
 		}
 
 		/*
-		 * The latched sense data in the sa(4) driver is cleared after it is read,
-		 * if the non-control device (e.g. /dev/sa0, not /dev/sa0.ctl) was opened.
-		 */
+     * The latched sense data in the sa(4) driver is cleared after it is read,
+     * if the non-control device (e.g. /dev/sa0, not /dev/sa0.ctl) was opened.
+     */
 		if (sense_data->error_code == 0) {
 			ltfsmsg(LTFS_DEBUG, 31209D);
 
@@ -194,14 +194,14 @@ int camtape_ioctlrc2err(void *device, int fd, struct scsi_sense_data *sense_data
 			scsi_extract_sense_len(sense_data, sense_data_len, &error_code, &sense_key, &asc, &ascq, /*show_errors*/ 1);
 			ltfsmsg(LTFS_DEBUG, 31206D, sense_key, asc, ascq);
 			/*
-			 * XXX KDM we should figure out a better way to extract these vendor specific bits.
-			 * Do the IBM drives not support descriptor sense?
-			 * The vendor specific data that this debug statement pulls out is beyond the 32
-			 * bytes of sense data that the sa(4) driver provides through the MTIOCERRSTAT ioctl.
-			 * This means that we will have to bump the size of the sense data used in the
-			 * ioctl.  That also means we have an opportunity to provide more information in
-			 * the ioctl, like the valid length of the sense data.
-			 */
+       * XXX KDM we should figure out a better way to extract these vendor specific bits.
+       * Do the IBM drives not support descriptor sense?
+       * The vendor specific data that this debug statement pulls out is beyond the 32
+       * bytes of sense data that the sa(4) driver provides through the MTIOCERRSTAT ioctl.
+       * This means that we will have to bump the size of the sense data used in the
+       * ioctl.  That also means we have an opportunity to provide more information in
+       * the ioctl, like the valid length of the sense data.
+       */
 
 #if 0
 			ltfsmsg(LTFS_DEBUG, 31207D, sense_data->vendor[27], sense_data->vendor[28], sense_data->vendor[29], sense_data->vendor[30],
@@ -426,9 +426,9 @@ int camtape_test_unit_ready(void *device)
 											 /*timeout*/ timeout * 1000);
 
 	/*
-	 * XXX KDM enabling error recovery here, so the retry count will work.
-	 * Not sure whether this is the correct thing to do.
-	 */
+   * XXX KDM enabling error recovery here, so the retry count will work.
+   * Not sure whether this is the correct thing to do.
+   */
 	ccb->ccb_h.flags |= CAM_DEV_QFRZDIS | CAM_PASS_ERR_RECOVER;
 
 	rc = camtape_send_ccb(softc, ccb, &msg);
@@ -477,9 +477,9 @@ int camtape_reserve_unit(void *device)
 	ltfsmsg(LTFS_DEBUG, 31392D, "reserve unit (6)", softc->drive_serial);
 	ltfs_profiler_add_entry(softc->profiler, NULL, TAPEBEND_REQ_EXIT(REQ_TC_RESERVEUNIT));
 	/*
-	 * The FreeBSD tape driver issues a RESERVE UNIT command during the open process.  So a
-	 * separate reserve is not needed.
-	 */
+   * The FreeBSD tape driver issues a RESERVE UNIT command during the open process.  So a
+   * separate reserve is not needed.
+   */
 	return DEVICE_GOOD;
 }
 
@@ -497,9 +497,9 @@ int camtape_release_unit(void *device)
 	ltfsmsg(LTFS_DEBUG, 31392D, "release unit (6)", softc->drive_serial);
 	ltfs_profiler_add_entry(softc->profiler, NULL, TAPEBEND_REQ_EXIT(REQ_TC_RELEASEUNIT));
 	/*
-	 * The FreeBSD tape driver issues a RELEASE UNIT during the close process.  So a separate
-	 * release is not needed.
-	 */
+   * The FreeBSD tape driver issues a RELEASE UNIT during the close process.  So a separate
+   * release is not needed.
+   */
 	return DEVICE_GOOD;
 }
 
@@ -679,6 +679,7 @@ int camtape_getdump_drive(void *device, const char *fname)
  * @return 0 on success or negative value on error
  */
 #define SENDDIAG_BUF_LEN (8)
+
 int camtape_forcedump_drive(struct camtape_data *softc)
 {
 	union ccb *ccb = NULL;

@@ -90,7 +90,7 @@ void update_platform_safe_name(struct dentry *dentry, bool handle_invalid_char, 
 		source_file_name_extension = strrchr(source_file_name, '.');
 
 		/* If '.' is at the beginning of file name, then all of file name is
-		   recognized as prefix, not extension. */
+       recognized as prefix, not extension. */
 		if (source_file_name_extension == source_file_name_prefix) source_file_name_extension = NULL;
 	} else {
 		source_file_name_prefix = source_file_name;

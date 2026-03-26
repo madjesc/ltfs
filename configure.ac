@@ -587,7 +587,7 @@ AM_CONDITIONAL([ENABLE_LIN_TAPE], [test "x${lintape}" = "xyes"])
 AM_CONDITIONAL([PLATFORM_MAC], [test "x${host_mac}" = "xyes"])
 AM_CONDITIONAL([PLATFORM_FREEBSD], [test "x${host_freebsd}" = "xyes"])
 AM_CONDITIONAL([PLATFORM_NETBSD], [test "x${host_netbsd}" = "xyes"])
-AM_CONDITIONAL([CHK_MESSAGE], [test "x${use_msg_check}" = "xyes"])
+# AM_CONDITIONAL([CHK_MESSAGE], [test "x${use_msg_check}" = "xyes"])
 AM_CONDITIONAL([OSS], [true])
 
 AC_SUBST(CFLAGS)

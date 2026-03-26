@@ -225,10 +225,10 @@ int itdtimage_open(const char *name, void **handle)
 	}
 
 	/*
-	 *
-	 *  At the point name must be a regular file
-	 *  open image file
-	 */
+   *
+   *  At the point name must be a regular file
+   *  open image file
+   */
 	state->img_file = fopen(name, "r");
 	if (!state->img_file) {
 		ltfsmsg(LTFS_ERR, 31001E, name, "fopen", (unsigned long long)errno);
@@ -252,9 +252,9 @@ int itdtimage_open(const char *name, void **handle)
 	}
 
 	/*
-	 * letzte 2K aus image file auslese
-	 * allocate memory:
-	 */
+   * letzte 2K aus image file auslese
+   * allocate memory:
+   */
 	buffer = calloc(1, read_length);
 	if (buffer == NULL) {
 		// add debug message
@@ -997,6 +997,7 @@ int itdtimage_get_parameters(void *vstate, struct tc_drive_param *params)
 	params->write_protect = VOL_PHYSICAL_WP;
 	return DEVICE_GOOD;
 }
+
 const char *itdtimage_default_device_name(void)
 {
 	return itdtimage_default_device;
@@ -1029,6 +1030,7 @@ int _itdtimage_remove_record(const struct itdtimage_data *state, int partition, 
 	return -EDEV_WRITE_PROTECTED;
 	;
 }
+
 /**
  * Make filename for a record.
  * Returns a string on success or NULL on failure. The caller is responsible for freeing
@@ -1412,9 +1414,9 @@ int itdtimage_get_serialnumber(void *vstate, char **result)
 int itdtimage_get_info(void *device, struct tc_drive_info *info)
 {
 	/*
-	 * Return dummy data.
-	 * This logic is enough only for single drive supported code.
-	 */
+   * Return dummy data.
+   * This logic is enough only for single drive supported code.
+   */
 	info->host = 0;
 	info->channel = 0;
 	info->target = 0;
@@ -1556,7 +1558,7 @@ unsigned long long _seek_file(FILE *file, unsigned long long position)
 		int fd = fileno(fStream);
 		osHANDLE handle = (void *)_get_osfhandle(fd);
 		if (!SetFilePointerEx(handle, p, NULL, FILE_BEGIN)) {
-			//printf("Error in _seek_file()\n");
+			// printf("Error in _seek_file()\n");
 			ret = 0;
 		} else
 			ret = position;
@@ -1641,19 +1643,4 @@ struct tape_ops itdtimage_handler = {
 struct tape_ops *tape_dev_get_ops(void)
 {
 	return &itdtimage_handler;
-}
-
-#ifndef mingw_PLATFORM
-extern char tape_generic_itdtimg_dat[];
-#endif
-
-const char *tape_dev_get_message_bundle_name(void **message_data)
-{
-#ifndef mingw_PLATFORM
-	*message_data = tape_generic_itdtimg_dat;
-
-#else
-	*message_data = NULL;
-#endif
-	return "tape_generic_itdtimg";
 }

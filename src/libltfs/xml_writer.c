@@ -333,6 +333,7 @@ static int _copy_file_contents(int dest, int src)
 const struct timespec lock_wait = { 0, 100000000 }; /* 100ms */
 const struct timespec lock_zero = { 0, 0 };
 #define LOCK_RETRIES (12000)												/* 100ms x 12,000 = 1200sec = 20 min */
+
 int xml_acquire_file_lock(const char *file, int *fd, int *bk_fd, bool is_write)
 {
 	int ret = -LTFS_CACHE_IO;

@@ -217,10 +217,10 @@ void *cache_manager_allocate_object(void *cache)
 	}
 
 	/*
-	 * If no available objects were found then we need to figure if we are allowed
-	 * to grow the pool any further. If we're not then NULL is returned and the caller
-	 * is in charge of flushing caches to overcome this situation.
-	 */
+   * If no available objects were found then we need to figure if we are allowed
+   * to grow the pool any further. If we're not then NULL is returned and the caller
+   * is in charge of flushing caches to overcome this situation.
+   */
 	if (pool->current_capacity == pool->max_capacity)
 		return NULL;
 

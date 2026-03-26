@@ -138,22 +138,6 @@ void ltfsprintf_finish();
 int ltfsprintf_set_log_level(int log_level);
 
 /**
- * Load messages for a plugin from the specified resource name.
- * @param bundle_name Message bundle name.
- * @param bundle_data Message bundle data structure.
- * @param messages On success, contains a handle to the loaded message bundles. That handle
- *                 should be passed to @ltfsprintf_unload_plugin later.
- * @return 0 on success or a negative value on error.
- */
-int ltfsprintf_load_plugin(const char *bundle_name, void *bundle_data, void **messages);
-
-/**
- * Stop using messages from the given plugin message bundle.
- * @param handle Message bundle handle, as returned by @ltfsprintf_load_plugin.
- */
-void ltfsprintf_unload_plugin(void *handle);
-
-/**
  * Print a message in the system locale. Any extra arguments are substituted into the
  * format string. The current logging level is ignored, so the ltfsmsg macro
  * (which calls this function) should be used instead.

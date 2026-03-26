@@ -267,8 +267,8 @@ int ltfs_read_one_label(tape_partition_t partition, struct ltfs_label *label, st
 	if (ret < 0) {
 		ltfsmsg(LTFS_ERR, 11173E, ret, (unsigned long)partition);
 		/* Simple heuristic to detect an unpartitioned tape: seeking to partition 1 fails.
-		 * Note that the seek may fail for other reasons, which can't currently be distinguished
-		 * by looking at the backend return codes. */
+     * Note that the seek may fail for other reasons, which can't currently be distinguished
+     * by looking at the backend return codes. */
 		if (ret <= -LTFS_ERR_MIN && partition == 1) ret = -LTFS_NOT_PARTITIONED;
 		goto out_free;
 	}
@@ -815,7 +815,7 @@ int _ltfs_populate_lost_found(char partition, tape_block_t part_lastref, tape_bl
 
 		if (nr < 0) {
 			/* TODO: for some errors (e.g. block too large), it might be possible
-			 * to skip this block and continue on */
+       * to skip this block and continue on */
 			break;
 		} else if (nr == 0) {
 			ltfsmsg(LTFS_WARN, 11210W, (unsigned long)seekpos.partition);

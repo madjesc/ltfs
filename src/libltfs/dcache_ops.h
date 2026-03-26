@@ -260,6 +260,5 @@ struct dcache_ops {
 };
 
 struct dcache_ops *dcache_get_ops(void);
-const char *dcache_get_message_bundle_name(void **message_data);
 
 #endif /* __dcache_ops_h */

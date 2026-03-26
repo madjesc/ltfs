@@ -80,7 +80,6 @@ struct iosched_ops {
 };
 
 struct iosched_ops *iosched_get_ops(void);
-const char *iosched_get_message_bundle_name(void **message_data);
 
 /**
  * Request type definisions for LTFS request profile

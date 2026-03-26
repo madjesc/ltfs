@@ -64,6 +64,5 @@ struct kmi_ops {
 };
 
 struct kmi_ops *kmi_get_ops(void);
-const char *kmi_get_message_bundle_name(void ** const message_data);
 
 #endif /* __kmi_ops_h */

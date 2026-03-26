@@ -380,7 +380,7 @@ int _config_file_validate(struct config_file *config)
 	bool found = false;
 
 	/* Validate plugin configuration. For each configured plugin, return an error if the configured
-	 * default plugin is not in	the list of known plugins. */
+   * default plugin is not in	the list of known plugins. */
 	TAILQ_FOREACH(de, &config->default_plugins, list)
 	{
 		found = false;
@@ -761,7 +761,7 @@ int _config_file_parse_option(const char *line, char *saveptr, struct option_ent
 	tok = strtok_r(NULL, " \t\r\n", &saveptr);
 	if (!tok) {
 		/* Cannot parse configuration file: \'option\' directive must be followed
-		 * by a option type and LTFS mount option */
+     * by a option type and LTFS mount option */
 		ltfsmsg(LTFS_ERR, 11272E);
 		return -LTFS_CONFIG_INVALID;
 	}
@@ -786,7 +786,7 @@ int _config_file_parse_option(const char *line, char *saveptr, struct option_ent
 	tok = strtok_r(NULL, " \t\r\n", &saveptr);
 	if (!tok) {
 		/* Cannot parse configuration file: \'option\' directive must be followed
-		 * by a LTFS mount option */
+     * by a LTFS mount option */
 		ltfsmsg(LTFS_ERR, 11272E);
 		free(type);
 		return -LTFS_CONFIG_INVALID;

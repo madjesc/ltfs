@@ -408,9 +408,9 @@ int tape_load_tape(struct device_data *dev, void *const kmi_handle, bool force)
 	}
 
 	/* Set defaults for the drive
-	 *    Blocksize should be set to variable
-	 *    Read past filemark function should be set to false (IBM driver only?)
-	 */
+   *    Blocksize should be set to variable
+   *    Read past filemark function should be set to false (IBM driver only?)
+   */
 	ret = dev->backend->set_default(dev->backend_data);
 	if (ret < 0) {
 		ltfsmsg(LTFS_ERR, 12020E, ret);
@@ -826,7 +826,7 @@ int tape_seek_append_position(struct device_data *dev, tape_partition_t prt, boo
 	new_pos.block = dev->append_pos[prt];
 	ltfs_mutex_unlock(&dev->append_pos_mutex);
 	/* Goto EOD with locate command with really big positon,
-	   because space command cannot specify partition. */
+     because space command cannot specify partition. */
 	if (new_pos.block == 0) new_pos.block = TAPE_BLOCK_MAX;
 	ret = tape_seek(dev, &new_pos);
 	if (ret < 0) {
@@ -996,9 +996,9 @@ int tape_seek(struct device_data *dev, struct tc_position *pos)
 
 	if (IS_WRITE_PERM(-ret)) {
 		/*
-		 * LOCATE command must not return a WRITE_PERM related error.
-		 * LOCATE is actually read operation, it doesn't make sense to return a WRITE_PERM at all.
-		 */
+     * LOCATE command must not return a WRITE_PERM related error.
+     * LOCATE is actually read operation, it doesn't make sense to return a WRITE_PERM at all.
+     */
 		ltfsmsg(LTFS_ERR, 17267E, ret, -LTFS_LOCATE_ERROR);
 		ret = -LTFS_LOCATE_ERROR;
 	}
@@ -1036,9 +1036,9 @@ int tape_seek_eod(struct device_data *dev, tape_partition_t partition)
 		ltfsmsg(LTFS_ERR, 12039E, ret);
 		if (IS_WRITE_PERM(-ret)) {
 			/*
-			 * LOCATE command must not return a WRITE_PERM related error.
-			 * LOCATE is actually read operation, it doesn't make sense to return a WRITE_PERM at all.
-			 */
+       * LOCATE command must not return a WRITE_PERM related error.
+       * LOCATE is actually read operation, it doesn't make sense to return a WRITE_PERM at all.
+       */
 			ltfsmsg(LTFS_ERR, 17267E, ret, -LTFS_LOCATE_ERROR);
 			ret = -LTFS_LOCATE_ERROR;
 		}
@@ -1394,9 +1394,9 @@ int tape_reset_capacity(struct device_data *dev)
 	CHECK_ARG_NULL(dev->backend, -LTFS_NULL_ARG);
 
 	/*
-	 * Locate block 0 @ P0 using load command to avoid error when known upper generation
-	 * cartridge is inserted.
-	 */
+   * Locate block 0 @ P0 using load command to avoid error when known upper generation
+   * cartridge is inserted.
+   */
 	ret = dev->backend->load(dev->backend_data, &dev->position);
 	if (ret < 0) {
 		ltfsmsg(LTFS_ERR, 12050E, ret);
@@ -1464,9 +1464,9 @@ int tape_format(struct device_data *dev, tape_partition_t index_part, int densit
 	CHECK_ARG_NULL(dev->backend, -LTFS_NULL_ARG);
 
 	/*
-	 * Locate block 0 @ P0 using load command to avoid error when known upper generation
-	 * cartridge is inserted.
-	 */
+   * Locate block 0 @ P0 using load command to avoid error when known upper generation
+   * cartridge is inserted.
+   */
 	ret = dev->backend->load(dev->backend_data, &dev->position);
 	if (ret < 0) {
 		ltfsmsg(LTFS_ERR, 12050E, ret);
@@ -1596,9 +1596,9 @@ int tape_unformat_hard(struct device_data *dev)
 		ltfsmsg(LTFS_ERR, 12054E, ret);
 		if (IS_WRITE_PERM(-ret)) {
 			/*
-			 * LOCATE command must not return a WRITE_PERM related error.
-			 * LOCATE is actually read operation, it doesn't make sense to return a WRITE_PERM at all.
-			 */
+       * LOCATE command must not return a WRITE_PERM related error.
+       * LOCATE is actually read operation, it doesn't make sense to return a WRITE_PERM at all.
+       */
 			ltfsmsg(LTFS_ERR, 17267E, ret, -LTFS_LOCATE_ERROR);
 			ret = -LTFS_LOCATE_ERROR;
 		}
@@ -1691,8 +1691,8 @@ int tape_get_cart_coherency(struct device_data *dev, const tape_partition_t part
 		coh->set_id = ltfs_betou64(coh_data + 22);
 
 		/* Allow ap_clent_specific_len is 42 and 43 to keep backward compatibility.
-		 * It should be 43 but in LTFS 1.0 and 1.0.1, it was set 42 as a code bug...
-		 */
+     * It should be 43 but in LTFS 1.0 and 1.0.1, it was set 42 as a code bug...
+     */
 		uint16_t ap_clent_specific_len = ltfs_betou16(coh_data + 30);
 		if (ap_clent_specific_len != 42 && ap_clent_specific_len != 43) {
 			ltfsmsg(LTFS_WARN, 12061W, ap_clent_specific_len);
@@ -1705,8 +1705,8 @@ int tape_get_cart_coherency(struct device_data *dev, const tape_partition_t part
 		memcpy(coh->uuid, coh_data + 37, 37);
 
 		/* Don't need to check the version field because the values parsed above are guaranteed
-		 * to be supported in every version of the LTFS MAM parameters.
-		 */
+     * to be supported in every version of the LTFS MAM parameters.
+     */
 		coh->version = coh_data[74];
 	} else
 		ltfsmsg(LTFS_WARN, 12057W, ret);
@@ -1741,10 +1741,10 @@ int tape_set_cart_coherency(struct device_data *dev, const tape_partition_t part
 	arch_strncpy((char *)coh_data + 32, "LTFS", 5, 4);
 	memcpy(coh_data + 37, coh->uuid, 37);
 	/*
-	   Version field
-		0: GA and PGA1
-		1: From PGA2
-	*/
+     Version field
+          0: GA and PGA1
+          1: From PGA2
+  */
 	coh_data[74] = coh->version; /* version field should be specified before calling this function */
 
 	ret = dev->backend->write_attribute(dev->backend_data, part, coh_data, sizeof(coh_data));
@@ -2431,9 +2431,9 @@ int tape_get_pews(struct device_data *dev, uint16_t *pews)
 
 	if (ret && ret != TC_MP_DEV_CONFIG_EXT_SIZE) {
 		/*
-		 * Return error when modesense returns length
-		 * and it's not matched to the requested length
-		 */
+     * Return error when modesense returns length
+     * and it's not matched to the requested length
+     */
 		return -LTFS_UNSUPPORTED;
 	}
 
@@ -2482,7 +2482,7 @@ int tape_enable_append_only_mode(struct device_data *dev, bool enable)
 	}
 
 	/* If cartridge is loaded and append-only mode is to be disabled,
-	   the cartridge has to be unloaded before sending mode select. */
+     the cartridge has to be unloaded before sending mode select. */
 	if (loaded && !enable && (mp_dev_config_ext[21] & 0xF0) == 0x10) {
 		ret = dev->backend->unload(dev->backend_data, &dev->position);
 		if (ret == -EDEV_CLEANING_REQUIRED) {
@@ -2497,7 +2497,7 @@ int tape_enable_append_only_mode(struct device_data *dev, bool enable)
 		reload = true;
 	} else if (loaded && enable) {
 		/* If cartridge is loaded and and append-only mode is to be enabled,
-		   the current position has to be a BOP */
+       the current position has to be a BOP */
 		ret = dev->backend->load(dev->backend_data, &dev->position);
 		if (ret == -EDEV_MEDIUM_FORMAT_ERROR) ret = -LTFS_UNSUPPORTED_MEDIUM;
 		if (ret < 0) {
@@ -2729,7 +2729,7 @@ int tape_set_key(struct device_data *dev, const unsigned char *keyalias, const u
 
 		if (pos.block) {
 			/* If a multiple data keys are used or there are both plain and encrypted data on a cartridge,
-			 * LTFS forces read only mode because it is incompatible with LME and SME */
+       * LTFS forces read only mode because it is incompatible with LME and SME */
 			tape_force_read_only(dev);
 		}
 	}
@@ -3605,7 +3605,7 @@ int tape_rao_request(struct device_data *dev, struct rao_mod *rao)
 	/* run GRAO */
 	ret = dev->backend->grao(dev->backend_data, rao->in_buf, rao->in_size);
 	if (ret < 0) {
-		ltfsmsg(LTFS_INFO, 17275I, "GRAO", ret);	//GRAO command returns error
+		ltfsmsg(LTFS_INFO, 17275I, "GRAO", ret);	// GRAO command returns error
 		return ret;
 	}
 

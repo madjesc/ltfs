@@ -59,7 +59,6 @@
 #ifndef mingw_PLATFORM
 #	include <dlfcn.h>
 #endif
-#include <errno.h>
 
 #include "config_file.h"
 #include "kmi.h"
@@ -70,11 +69,8 @@
 
 int plugin_load(struct libltfs_plugin *pl, const char *type, const char *name, struct config_file *config)
 {
-	int ret;
-	const char *lib_path, *message_bundle_name;
-	void *message_bundle_data;
+	const char *lib_path;
 	void *(*get_ops)(void) = NULL;
-	const char *(*get_messages)(void **) = NULL;
 
 	CHECK_ARG_NULL(pl, -LTFS_NULL_ARG);
 	CHECK_ARG_NULL(type, -LTFS_NULL_ARG);
@@ -91,14 +87,7 @@ int plugin_load(struct libltfs_plugin *pl, const char *type, const char *name, s
 
 	pl->lib_handle = dlopen(lib_path, RTLD_NOW);
 	if (!pl->lib_handle) {
-#ifdef _MSC_VER
-		char *err = dlerror();
-		ltfsmsg(LTFS_ERR, 11261E, err);
-		free(err);
-#else
 		ltfsmsg(LTFS_ERR, 11261E, dlerror());
-
-#endif	// _MSC_VER
 		return -LTFS_PLUGIN_LOAD;
 	}
 
@@ -118,52 +107,17 @@ int plugin_load(struct libltfs_plugin *pl, const char *type, const char *name, s
 		get_ops = dlsym(pl->lib_handle, "kmi_get_ops");
 	else if (!strcmp(type, "crepos"))
 		get_ops = dlsym(pl->lib_handle, "crepos_get_ops");
-	/* config_file_get_lib already verified that "type" contains one of the values above */
+	/* config_file_get_lib already verified that "type" contains one of the values
+   * above */
 
 	if (!get_ops) {
-#ifdef _MSC_VER
-		char *err = dlerror();
-		ltfsmsg(LTFS_ERR, 11263E, err);
-		free(err);
-#else
 		ltfsmsg(LTFS_ERR, 11263E, dlerror());
-
-#endif	// _MSC_VER
 		dlclose(pl->lib_handle);
 		pl->lib_handle = NULL;
 		return -LTFS_PLUGIN_LOAD;
 	}
 
-	/* Make sure the plugin knows how to describe its message bundle (if any) */
-	if (!strcmp(type, "iosched"))
-		get_messages = dlsym(pl->lib_handle, "iosched_get_message_bundle_name");
-	else if (!strcmp(type, "tape"))
-		get_messages = dlsym(pl->lib_handle, "tape_dev_get_message_bundle_name");
-	else if (!strcmp(type, "changer"))
-		get_messages = dlsym(pl->lib_handle, "changer_get_message_bundle_name");
-	else if (!strcmp(type, "dcache"))
-		get_messages = dlsym(pl->lib_handle, "dcache_get_message_bundle_name");
-	else if (!strcmp(type, "kmi"))
-		get_messages = dlsym(pl->lib_handle, "kmi_get_message_bundle_name");
-	else if (!strcmp(type, "crepos"))
-		get_messages = dlsym(pl->lib_handle, "crepos_get_message_bundle_name");
 	/* config_file_get_lib already verified that "type" contains one of the values above */
-
-	if (!get_messages) {
-#ifdef _MSC_VER
-		char *err = dlerror();
-		ltfsmsg(LTFS_ERR, 11284E, err);
-		free(err);
-#else
-		ltfsmsg(LTFS_ERR, 11263E, dlerror());
-
-#endif	// _MSC_VER
-		dlclose(pl->lib_handle);
-		pl->lib_handle = NULL;
-		return -LTFS_PLUGIN_LOAD;
-	}
-
-	/* Ask the plugin what operations and messages it provides */
 	pl->ops = get_ops();
 	if (!pl->ops) {
 		ltfsmsg(LTFS_ERR, 11264E);
@@ -172,22 +126,12 @@ int plugin_load(struct libltfs_plugin *pl, const char *type, const char *name, s
 		return -LTFS_PLUGIN_LOAD;
 	}
 
-	message_bundle_name = get_messages(&message_bundle_data);
-	if (message_bundle_name) {
-		ret = ltfsprintf_load_plugin(message_bundle_name, message_bundle_data, &pl->messages);
-		if (ret < 0) {
-			ltfsmsg(LTFS_ERR, 11285E, type, name, ret);
-			return ret;
-		}
-	}
-
 	return 0;
 }
 
 int plugin_unload(struct libltfs_plugin *pl)
 {
 	if (!pl || !pl->lib_handle) return 0;
-	ltfsprintf_unload_plugin(pl->messages);
 
 #ifndef VALGRIND_FRIENDLY
 	/* Valgrind cannot resolve function name after closing shared library */

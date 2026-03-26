@@ -180,8 +180,8 @@ int pathname_prepare_caseless(const char *name, UChar **new_name, bool use_nfc)
 	if (ret < 0) return ret;
 
 	/* Figure out whether an initial NFD mapping is needed. This is the case if the string
-	 * contains U+0345 or a code point whose canonical decomposition contains U+0345.
-	 * All such code points fall between U+1F80 and U+1FFF, inclusive. */
+   * contains U+0345 or a code point whose canonical decomposition contains U+0345.
+   * All such code points fall between U+1F80 and U+1FFF, inclusive. */
 	need_initial_nfd = false;
 	tmp = icu_name;
 	while (*tmp) {
@@ -709,40 +709,40 @@ int _pathname_normalize_nfc_icu(const UChar *src, UChar **dest)
 int _pathname_normalize_nfd_icu(const UChar *src, UChar **dest)
 {
 	/**
-	 * unorm2_quickCheck
-	 * Tests if the string is normalized.
-	 * Internally, in cases where the quickCheck() method would return "maybe"
-	 * (which is only possible for the two COMPOSE modes) this method
-	 * resolves to "yes" or "no" to provide a definitive result,
-	 * at the cost of doing more work in those cases.
-	 * @param norm2 UNormalizer2 instance
-	 * @param s input string
-	 * @param length length of the string, or -1 if NUL-terminated
-	 * @param pErrorCode Standard ICU error code. Its input value must
-	 *                   pass the U_SUCCESS() test, or else the function returns
-	 *                   immediately. Check for U_FAILURE() on output or use with
-	 *                   function chaining. (See User Guide for details.)
-	 * @return TRUE if s is normalized
-	 * @stable ICU 4.4
-	 */
+   * unorm2_quickCheck
+   * Tests if the string is normalized.
+   * Internally, in cases where the quickCheck() method would return "maybe"
+   * (which is only possible for the two COMPOSE modes) this method
+   * resolves to "yes" or "no" to provide a definitive result,
+   * at the cost of doing more work in those cases.
+   * @param norm2 UNormalizer2 instance
+   * @param s input string
+   * @param length length of the string, or -1 if NUL-terminated
+   * @param pErrorCode Standard ICU error code. Its input value must
+   *                   pass the U_SUCCESS() test, or else the function returns
+   *                   immediately. Check for U_FAILURE() on output or use with
+   *                   function chaining. (See User Guide for details.)
+   * @return TRUE if s is normalized
+   * @stable ICU 4.4
+   */
 
 	/**
-	 * unorm2_normalize
-	 * Writes the normalized form of the source string to the destination string
-	 * (replacing its contents) and returns the length of the destination string.
-	 * The source and destination strings must be different buffers.
-	 * @param norm2 UNormalizer2 instance
-	 * @param src source string
-	 * @param length length of the source string, or -1 if NUL-terminated
-	 * @param dest destination string; its contents is replaced with normalized src
-	 * @param capacity number of UChars that can be written to dest
-	 * @param pErrorCode Standard ICU error code. Its input value must
-	 *                   pass the U_SUCCESS() test, or else the function returns
-	 *                   immediately. Check for U_FAILURE() on output or use with
-	 *                   function chaining. (See User Guide for details.)
-	 * @return dest
-	 * @stable ICU 4.4
-	 */
+   * unorm2_normalize
+   * Writes the normalized form of the source string to the destination string
+   * (replacing its contents) and returns the length of the destination string.
+   * The source and destination strings must be different buffers.
+   * @param norm2 UNormalizer2 instance
+   * @param src source string
+   * @param length length of the source string, or -1 if NUL-terminated
+   * @param dest destination string; its contents is replaced with normalized src
+   * @param capacity number of UChars that can be written to dest
+   * @param pErrorCode Standard ICU error code. Its input value must
+   *                   pass the U_SUCCESS() test, or else the function returns
+   *                   immediately. Check for U_FAILURE() on output or use with
+   *                   function chaining. (See User Guide for details.)
+   * @return dest
+   * @stable ICU 4.4
+   */
 
 	/* Do a quick check to decide whether this string is already normalized. */
 	UErrorCode err = U_ZERO_ERROR;

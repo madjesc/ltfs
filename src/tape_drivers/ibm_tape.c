@@ -433,8 +433,8 @@ struct error_table ibm_tape_errors[] = {
 };
 
 /* TODO: Choose best HASH functions defined into UThash ! */
-//#undef HASH_FCN
-//#define HASH_FCN HASH_BER
+// #undef HASH_FCN
+// #define HASH_FCN HASH_BER
 
 struct _timeout_tape
 {

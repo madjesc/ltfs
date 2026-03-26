@@ -134,7 +134,7 @@ int ltfs_init(int log_level, bool use_syslog, bool print_thread_id)
 
 	ret = ltfsprintf_init(log_level, use_syslog, print_thread_id);
 	if (ret < 0) {
-		fprintf(stderr, "LTFS9011E Logging initialization failed\n");
+		fprintf(stderr, "LTFS9011E Logging initialization failed (%d)\n", ret);
 		return ret;
 	}
 
@@ -191,6 +191,7 @@ void ltfs_set_syslog_level(int syslog_level)
  * Actual termination should be processed by each command
  */
 bool interrupted = false;
+
 void _ltfs_terminate(int signal)
 {
 	interrupted = true;
@@ -205,6 +206,7 @@ bool ltfs_is_interrupted(void)
 }
 
 bool caught_sigcont = false;
+
 void _ltfs_sigcont(int signal)
 {
 	ltfsmsg(LTFS_INFO, 17294I, signal);
@@ -539,12 +541,12 @@ int ltfs_setup_device(struct ltfs_volume *vol)
 	CHECK_ARG_NULL(vol, -LTFS_NULL_ARG);
 
 	/* Check a cartrige is loaded or at lock position
-	   and suppress unnessesary senses before issueing mode select in follwing part */
+     and suppress unnessesary senses before issueing mode select in follwing part */
 	ret = tape_is_cartridge_loadable(vol->device);
 	if (ret < 0) return ret;
 
 	/* Set Programmable Early Warning Space so that half of
-	   Index partition space is reserved for index file. */
+     Index partition space is reserved for index file. */
 	ret = tape_set_pews(vol->device, vol->set_pew);
 	if (ret < 0) return ret;
 
@@ -605,8 +607,8 @@ start:
 		releaseread_mrsw(&vol->lock);
 	} else {
 		/* Users generally don't care what kind of backend error occurred, only that
-		 * the device is not ready. This is needed to ensure that FUSE operations
-		 * return EBUSY when getting device readiness fails. */
+     * the device is not ready. This is needed to ensure that FUSE operations
+     * return EBUSY when getting device readiness fails. */
 		if (ret <= -EDEV_ERR_MIN) ret = -LTFS_DEVICE_UNREADY;
 		tape_device_unlock(vol->device);
 		releaseread_mrsw(&vol->lock);
@@ -936,8 +938,8 @@ int ltfs_get_params_unlocked(struct device_param *params, struct ltfs_volume *vo
 			params->density = tc_params.density;
 			params->write_protected = tc_params.write_protect;
 			/* TODO: Following field shall be implemented in the future */
-			//params->is_encrypted          = tc_params.is_encrypted;
-			//params->is_worm               = tc_params.is_worm;
+			// params->is_encrypted          = tc_params.is_encrypted;
+			// params->is_worm               = tc_params.is_worm;
 		}
 
 		tape_device_unlock(vol->device);
@@ -1604,7 +1606,7 @@ int ltfs_mount(bool force_full,
 	}
 
 	/* Don't trust version 0 MAM parameters. LTFS versions up to 1.0.1 have
-	 * a bug that writes incorrect data to one partition's MAM parameter. */
+   * a bug that writes incorrect data to one partition's MAM parameter. */
 	if (vol->ip_coh.version == 0 || vol->dp_coh.version == 0) force_full = true;
 
 	ltfsmsg(LTFS_DEBUG, 11018D); /* Done reading MAM parameters */
@@ -1651,19 +1653,19 @@ int ltfs_mount(bool force_full,
 		if (vol->ip_coh.count < vol->dp_coh.count) {
 			if (vollock != PWE_MAM_IP && vollock != PWE_MAM) {
 				/*
-				 * The index on DP is newer but MAM shows write perm doesn't happen in IP.
-				 * If LTFS failed to write IP with non-medium reason error (like cable pull on locate)
-				 * while write error handling at DP in the previous session, this condition would happen.
-				 */
+         * The index on DP is newer but MAM shows write perm doesn't happen in IP.
+         * If LTFS failed to write IP with non-medium reason error (like cable pull on locate)
+         * while write error handling at DP in the previous session, this condition would happen.
+         */
 				ltfsmsg(LTFS_INFO, 17264I, "DP", vl_print);
 			}
 
 			if (volume_change_ref != vol->dp_coh.volume_change_ref) {
 				/*
-				 * Cannot trust the index info on MAM, search the last indexes
-				 * This would happen when the drive returns an error against acquiring the VCR
-				 * while write error handling.
-				 */
+         * Cannot trust the index info on MAM, search the last indexes
+         * This would happen when the drive returns an error against acquiring the VCR
+         * while write error handling.
+         */
 				ltfsmsg(LTFS_INFO,
 								17283I,
 								(unsigned long long)vol->dp_coh.volume_change_ref,
@@ -1681,19 +1683,19 @@ int ltfs_mount(bool force_full,
 		} else {
 			if (vol->ip_coh.count > vol->dp_coh.count && vollock != PWE_MAM_DP && vollock != PWE_MAM) {
 				/*
-				 * The index on IP is newer but MAM shows write perm doesn't happen in DP.
-				 * LTFS already have written an index on DP when it is writing an index on IP,
-				 * so this condition wouldn't happen logically.
-				 */
+         * The index on IP is newer but MAM shows write perm doesn't happen in DP.
+         * LTFS already have written an index on DP when it is writing an index on IP,
+         * so this condition wouldn't happen logically.
+         */
 				ltfsmsg(LTFS_INFO, 17264I, "IP", vl_print);
 			}
 
 			if (volume_change_ref != vol->ip_coh.volume_change_ref) {
 				/*
-				 * Cannot trust the index info on MAM, search the last indexes
-				 * This would happen when the drive returns an error against acquiring the VCR
-				 * while write error handling.
-				 */
+         * Cannot trust the index info on MAM, search the last indexes
+         * This would happen when the drive returns an error against acquiring the VCR
+         * while write error handling.
+         */
 				ltfsmsg(LTFS_INFO,
 								17283I,
 								(unsigned long long)vol->dp_coh.volume_change_ref,
@@ -2402,7 +2404,7 @@ int ltfs_write_index(char partition, char *reason, struct ltfs_volume *vol)
 		ltfs_mutex_unlock(&vol->device->append_pos_mutex);
 	} else {
 		/* Check read-only status. Ignore the out-of-space condition, as this should not
-		 * prevent writing an Index. */
+     * prevent writing an Index. */
 		ret = ltfs_get_partition_readonly(ltfs_ip_id(vol), vol);
 		if (!ret || ret == -LTFS_NO_SPACE || ret == -LTFS_LESS_SPACE)
 			ret = ltfs_get_partition_readonly(ltfs_dp_id(vol), vol);
@@ -2410,8 +2412,8 @@ int ltfs_write_index(char partition, char *reason, struct ltfs_volume *vol)
 	}
 
 	/* There is no need to grab the tape device lock here. All other multithreaded users
-	 * of the tape device do so with some kind of volume lock held, and this function
-	 * executes with an exclusive lock on the volume. */
+   * of the tape device do so with some kind of volume lock held, and this function
+   * executes with an exclusive lock on the volume. */
 
 	/* write to data partition first if required */
 	if (partition == ltfs_ip_id(vol) && !write_perm &&
@@ -2499,8 +2501,8 @@ int ltfs_write_index(char partition, char *reason, struct ltfs_volume *vol)
 		return -1;
 	}
 
-	/* Prior to writing the index, compare the current location of the head position to the head location 
-	that is kept in the cache of ltfs (physical_selfptr). If they are different return error (-1) */
+	/* Prior to writing the index, compare the current location of the head position to the head location
+  that is kept in the cache of ltfs (physical_selfptr). If they are different return error (-1) */
 	diff = ((unsigned long long)physical_selfptr.block - (unsigned long long)current_position.block);
 	if (diff) {
 		/* Position mismatch, diff not equal zero */
@@ -2578,7 +2580,7 @@ int ltfs_write_index(char partition, char *reason, struct ltfs_volume *vol)
 		vol->dp_index_file_end = true;
 
 	/* The MAM may be inaccessible, or it may not be available on this medium. Either way,
-	 * ignore failures when updating MAM parameters. */
+   * ignore failures when updating MAM parameters. */
 	ltfs_update_cart_coherency(vol);
 
 	ltfsmsg(LTFS_INFO,
@@ -3323,7 +3325,7 @@ int ltfs_revalidate(bool have_write_lock, struct ltfs_volume *vol)
 	}
 
 	/* Compare label to the old one. Need to fake this_partition field to prevent
-	 * label_compare() from complaining. */
+   * label_compare() from complaining. */
 	vol->label->this_partition = vol->label->partid_dp;
 	old_label->this_partition = vol->label->partid_ip;
 	ret = label_compare(old_label, vol->label);
@@ -3499,8 +3501,8 @@ start:
 		/* Force a new XML schema to be flushed to the tape */
 		ltfsmsg(LTFS_INFO, 17068I, bc_print, reason, vol->device->serial_number);
 		/* If the DP ends in an index and the IP doesn't, then we're most likely positioned
-		 * at the end of the IP, and writing an index there is allowed without first putting
-		 * down a DP index. */
+     * at the end of the IP, and writing an index there is allowed without first putting
+     * down a DP index. */
 		if (dp_index_file_end && !ip_index_file_end)
 			partition = ltfs_ip_id(vol);
 		else /* Otherwise, it's faster to write an index to the DP. */
@@ -3511,12 +3513,12 @@ start:
 		}
 
 		/*
-		 * Write index with holding device lock (Added in 2013/2/25)
-		 * From design point of view, this lock is not needed because all requests, file system
-		 * requests and oob requests need to hold volume lock to issue a scsi command to drive.
-		 * But some times we have a problem around here. So we decided to add the fail safe code
-		 * for avoiding the problem.
-		 */
+     * Write index with holding device lock (Added in 2013/2/25)
+     * From design point of view, this lock is not needed because all requests, file system
+     * requests and oob requests need to hold volume lock to issue a scsi command to drive.
+     * But some times we have a problem around here. So we decided to add the fail safe code
+     * for avoiding the problem.
+     */
 		ret = tape_device_lock(vol->device);
 		if (ret < 0) {
 			ltfsmsg(LTFS_ERR, 12010E, __FUNCTION__);
@@ -3526,19 +3528,19 @@ start:
 		ret = ltfs_write_index(partition, reason, vol);
 		if (IS_WRITE_PERM(-ret) && partition == ltfs_dp_id(vol)) {
 			/*
-			 * TODO: Need to determine the last record on DP of the tape and cleanup
-			 *       all extents on the volume. Because this write perm have a chance
-			 *       to happen in the cases below.
-			 *
-			 *       1. File contents lastly written (and got a write perm on tape drive's flush)
-			 *       2. Index written in ltfs_write_index()
-			 *
-			 *       Extents cleaning is required in case1, otherwise LTFS writes an index
-			 *       which has unwritten record on the tape.
-			 *
-			 *       For now, write the same index on IP and return an error against a sync
-			 *       request.
-			 */
+       * TODO: Need to determine the last record on DP of the tape and cleanup
+       *       all extents on the volume. Because this write perm have a chance
+       *       to happen in the cases below.
+       *
+       *       1. File contents lastly written (and got a write perm on tape drive's flush)
+       *       2. Index written in ltfs_write_index()
+       *
+       *       Extents cleaning is required in case1, otherwise LTFS writes an index
+       *       which has unwritten record on the tape.
+       *
+       *       For now, write the same index on IP and return an error against a sync
+       *       request.
+       */
 			ret_r = ltfs_write_index(ltfs_ip_id(vol), SYNC_WRITE_PERM, vol);
 			if (!ret_r) {
 				ltfsmsg(LTFS_INFO, 11344I, bc_print);
@@ -3875,16 +3877,16 @@ static int _ltfs_detect_final_rec_dp(struct ltfs_volume *vol, struct tc_position
 	/* Compare self pointer and a pointer in MAM */
 	if (vol->index->generation == ip_coh_gen && vol->index->generation == dp_coh_gen) {
 		/*
-		 * MAM points Index partition, Locate to the back pointer of IP and
-		 * read the index pointed to the back pointer
-		 */
+     * MAM points Index partition, Locate to the back pointer of IP and
+     * read the index pointed to the back pointer
+     */
 		seekpos.block = vol->index->backptr.block;
 		seekpos.partition = ltfs_part_id2num(vol->index->backptr.partition, vol);
 	} else if (dp_coh_gen == ip_coh_gen && vol->index->generation != ip_coh_gen) {
 		/*
-		 * MAM points Data partition, Locate to the position pointed to MAM and
-		 * read the index
-		 */
+     * MAM points Data partition, Locate to the position pointed to MAM and
+     * read the index
+     */
 		seekpos.block = vol->ip_coh.set_id;
 		seekpos.partition = ltfs_part_id2num(vol->label->partid_dp, vol);
 	} else {
@@ -3926,7 +3928,7 @@ int _ltfs_detect_final_rec_ip(struct ltfs_volume *vol, struct tc_position *pos)
 	int ret;
 
 	/* Detect the final record number of IP from
-       the final index of DP */
+ the final index of DP */
 	INTERRUPTED_RETURN();
 	ltfsmsg(LTFS_INFO, 17116I);
 	ret = ltfs_seek_index(vol->label->partid_dp, &end_pos, &index_end_pos, &fm_after, &blocks_after, false, vol);
@@ -4050,9 +4052,9 @@ int ltfs_recover_eod(struct ltfs_volume *vol)
 		/* Go to the end of final index of corrupted partition */
 		if (no_eod_part_id == vol->label->partid_ip) {
 			/*
-			 * In index partition, Index will be overwritten.
-			 * Locate to before the index in IP
-             */
+       * In index partition, Index will be overwritten.
+       * Locate to before the index in IP
+       */
 			seekpos.block = vol->ip_coh.set_id - 1;
 			seekpos.partition = ltfs_part_id2num(vol->label->partid_ip, vol);
 			;
@@ -4072,9 +4074,9 @@ int ltfs_recover_eod(struct ltfs_volume *vol)
 
 		if (no_eod_part_id == vol->label->partid_dp) {
 			/*
-			 * In index partition, Index will be overwritten.
-			 * Read an index only current partition is DP.
-			 */
+       * In index partition, Index will be overwritten.
+       * Read an index only current partition is DP.
+       */
 			ret = ltfs_read_index(0, false, vol);
 			if (ret < 0) return ret;
 		}

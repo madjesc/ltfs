@@ -153,6 +153,7 @@ int get_unix_current_timespec(struct ltfs_timespec *now)
 	now->tv_nsec = ts.tv_nsec;
 	return ret;
 }
+
 struct tm *get_unix_localtime(const ltfs_time_t *timep)
 {
 	time_t t = *timep;
@@ -301,10 +302,10 @@ struct timespec timespec_from_ltfs_timespec(const struct ltfs_timespec *pSrc)
 
 #ifdef __APPLE__
 	/*
-	 * In OSX environment time_t is always 64-bit width.
-	 * To use the same Makefile.osx for the limitation of build and test resources,
-	 * SDE 1.3 assumes that the value of sizeof(time_t) is 4.
-	 */
+   * In OSX environment time_t is always 64-bit width.
+   * To use the same Makefile.osx for the limitation of build and test resources,
+   * SDE 1.3 assumes that the value of sizeof(time_t) is 4.
+   */
 	if (pSrc->tv_sec > 0x7FFFFFFFLL)
 		ts.tv_sec = 0x7FFFFFFFLL;
 	else if (pSrc->tv_sec < -0x80000000LL)
