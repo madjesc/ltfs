@@ -49,6 +49,7 @@
 
 #ifndef time_internal_h_
 #define time_internal_h_
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {

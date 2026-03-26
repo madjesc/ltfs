@@ -49,6 +49,8 @@
 
 #ifndef __key_format_ltfs_h
 #define __key_format_ltfs_h
+#include <stdlib.h>
+#include "libltfs/ltfs.h"
 
 #define DK_LENGTH 32
 #define DKI_LENGTH 12

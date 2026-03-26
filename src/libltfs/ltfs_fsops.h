@@ -54,6 +54,10 @@
 
 #ifndef ltfs_fsops_h__
 #define ltfs_fsops_h__
+#include "ltfs.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {

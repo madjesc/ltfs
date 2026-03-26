@@ -38,7 +38,7 @@
 **
 ** FILE NAME:       index_criteria.h
 **
-** DESCRIPTION:     Header file for the routines that deal with the index partition 
+** DESCRIPTION:     Header file for the routines that deal with the index partition
 **                  criteria.
 **
 ** AUTHOR:          Lucas C. Villa Real
@@ -49,6 +49,8 @@
 */
 #ifndef __index_criteria_h
 #define __index_criteria_h
+#include <stdbool.h>
+#include "ltfs.h"
 
 #ifdef __cplusplus
 extern "C" {

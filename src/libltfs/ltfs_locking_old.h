@@ -54,6 +54,7 @@
 
 #ifndef __LTFS_LOCKING_OLD_H__
 #define __LTFS_LOCKING_OLD_H__
+#include "ltfslogging.h"
 
 #ifdef __cplusplus
 extern "C" {
