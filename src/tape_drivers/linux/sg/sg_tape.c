@@ -54,6 +54,7 @@
 #include <dirent.h>
 #include <sys/ioctl.h>
 
+#include "libltfs/ltfs_error.h"
 #include "ltfs_copyright.h"
 #include "libltfs/ltfslogging.h"
 #include "libltfs/fs.h"
@@ -104,7 +105,7 @@ struct sg_global_data global_data;
 #define MAX_RETRY          (100)
 
 #define MAX_TAKE_DUMP_ATTEMPTS (10)
-#define SOFT_ERROR_MAX_RETRIES (3)
+#define POR_MAX_RETRIES (3)
 
 /* Forward references (For keep function order to struct tape_ops) */
 int sg_readpos(void *device, struct tc_position *pos);
@@ -605,7 +606,7 @@ int _raw_tur(const int fd)
 
 #define _clear_por(p) _clear_por_raw((p)->dev.fd);
 
-void _clear_por_raw(const int fd)
+int _clear_por_raw(const int fd)
 {
 	int i = 0, ret = -1;
 
@@ -625,6 +626,7 @@ void _clear_por_raw(const int fd)
 		}
 		i++;
 	}
+	return ret;
 }
 
 #define _get_stable_tur_response(p) _get_stable_tur_response_raw((p)->dev.fd)
@@ -1862,15 +1864,10 @@ static int _cdb_read(void *device, char *buf, size_t size, bool sili)
 	return length;
 }
 
-static inline int _handle_block_allocation_failure(void *device, struct tc_position *pos,
-												   int *retry, char *op)
+static inline int _handle_block_write_failure(void *device, struct tc_position *pos, char *op)
 {
 	int ret = 0;
 	struct tc_position tmp_pos = {0, 0};
-
-	/* Sleep 3 secs to wait garbage correction in kernel side and retry */
-	ltfsmsg(LTFS_WARN, 30277W, ++(*retry));
-	sleep(3);
 
 	ret = sg_readpos(device, &tmp_pos);
 	if (ret == DEVICE_GOOD && pos->partition == tmp_pos.partition) {
@@ -1985,7 +1982,9 @@ start_read:
 		priv->use_sili = false;
 		ret = _cdb_read(device, buf, datacount, unusual_size);
 	} else if (ret == -EDEV_BUFFER_ALLOCATE_ERROR && retry_count < MAX_RETRY) {
-		ret = _handle_block_allocation_failure(device, pos, &retry_count, "read");
+    sleep(3); // Wait for kernel GC
+    ltfsmsg(LTFS_WARN, 30277W, ++retry_count);
+		ret = _handle_block_write_failure(device, pos, "read");
 		if (ret == -EDEV_RETRY)
 			goto start_read;
 	}
@@ -2099,8 +2098,7 @@ int sg_write(void *device, const char *buf, size_t count, struct tc_position *po
 	struct sg_data *priv = (struct sg_data*)device;
 	struct tc_position cur_pos;
 	size_t datacount = count;
-	int reconnect_retry_count = 0, soft_error_retry_count = 0;
-	int TBL_SLEEP_SECS[SOFT_ERROR_MAX_RETRIES] = {45, 60, 75}; // Hardcoded exponentially increasing sleep time
+	int retry_count = 0, por_retry_count = 0;
 
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_ENTER(REQ_TC_WRITE));
 
@@ -2147,15 +2145,21 @@ start_write:
 			} else
 				ret = -EDEV_POR_OR_BUS_RESET;
 		}
-	} else if (ret == -EDEV_BUFFER_ALLOCATE_ERROR && reconnect_retry_count < MAX_RETRY) {
-		ret = _handle_block_allocation_failure(device, pos, &reconnect_retry_count, "write");
+	} else if (ret == -EDEV_BUFFER_ALLOCATE_ERROR && retry_count < MAX_RETRY) {
+	  sleep(3); // Wait for kernel GC
+    ltfsmsg(LTFS_WARN, 30277W, ++retry_count);
+		ret = _handle_block_write_failure(device, pos, "write");
 		if (ret == -EDEV_RETRY)
 			goto start_write;
-	} else if (ret == -EDEV_HOST_ERROR && soft_error_retry_count < SOFT_ERROR_MAX_RETRIES) {
-		sleep(TBL_SLEEP_SECS[soft_error_retry_count]);
-		ret = _handle_block_allocation_failure(device, pos, &retry_count, "write");
-		if (ret == -EDEV_RETRY)
-			goto start_write;
+	} else if (ret == -EDEV_HOST_ERROR && por_retry_count < POR_MAX_RETRIES) {
+    por_retry_count++;
+		sleep(5);
+		ret = _clear_por(priv);
+		if (ret == DEVICE_GOOD) {
+  		ret = _handle_block_write_failure(device, pos, "write");
+  		if (ret == -EDEV_RETRY)
+  			goto start_write;
+		}
 	}
 
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_EXIT(REQ_TC_WRITE));
