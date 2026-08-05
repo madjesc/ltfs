@@ -1982,8 +1982,8 @@ start_read:
 		priv->use_sili = false;
 		ret = _cdb_read(device, buf, datacount, unusual_size);
 	} else if (ret == -EDEV_BUFFER_ALLOCATE_ERROR && retry_count < MAX_RETRY) {
-		sleep(3); // Wait for kernel GC
 		ltfsmsg(LTFS_WARN, 30277W, ++retry_count);
+		sleep(3); // Wait for kernel GC
 		ret = _handle_block_write_failure(device, pos, "read");
 		if (ret == -EDEV_RETRY)
 			goto start_read;
@@ -2128,12 +2128,12 @@ int sg_write(void *device, const char *buf, size_t count, struct tc_position *po
 	}
 
 start_write:
-	ret_write = _cdb_write(device, (uint8_t *)buf, datacount, &ew, &pew);
-	if (ret_write == DEVICE_GOOD) {
+	ret_write = ret = _cdb_write(device, (uint8_t *)buf, datacount, &ew, &pew);
+	if (ret == DEVICE_GOOD) {
 		pos->block++;
 		pos->early_warning = ew;
 		pos->programmable_early_warning = pew;
-	} else if (ret_write == -EDEV_NEED_FAILOVER) {
+	} else if (ret == -EDEV_NEED_FAILOVER) {
 		ret_fo = sg_readpos(device, &cur_pos);
 		if (!ret_fo) {
 			if (pos->partition == cur_pos.partition
@@ -2141,30 +2141,32 @@ start_write:
 				pos->block++;
 				pos->early_warning = cur_pos.early_warning;
 				pos->programmable_early_warning = cur_pos.programmable_early_warning;
-				ret = ret_write = DEVICE_GOOD;
+				ret = DEVICE_GOOD;
 			} else
 				ret = -EDEV_POR_OR_BUS_RESET;
 		}
-	} else if (ret_write == -EDEV_BUFFER_ALLOCATE_ERROR && retry_count < MAX_RETRY) {
-		sleep(3); // Wait for kernel GC
+	} else if (ret == -EDEV_BUFFER_ALLOCATE_ERROR && retry_count < MAX_RETRY) {
 		ltfsmsg(LTFS_WARN, 30277W, ++retry_count);
+		sleep(3); // Wait for kernel GC
 		ret = _handle_block_write_failure(device, pos, "write");
 		if (ret == -EDEV_RETRY)
 			goto start_write;
-	} else if (ret_write == -EDEV_HOST_ERROR && por_retry_count < POR_MAX_RETRIES) {
+	} else if (ret == -EDEV_HOST_ERROR && por_retry_count < POR_MAX_RETRIES) {
 		por_retry_count++;
 		sleep(5);
 		ret = _clear_por(priv);
 		if (ret == DEVICE_GOOD) {
-  			ret = _handle_block_write_failure(device, pos, "write");
-  			if (ret == -EDEV_RETRY)
-  				goto start_write;
-		}
+			ret = _handle_block_write_failure(device, pos, "write");
+				if (ret == -EDEV_RETRY)
+					goto start_write;
+			ret = DEVICE_GOOD;
+		} else
+		  ret = ret_write;
 	}
 
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_EXIT(REQ_TC_WRITE));
 
-	return ret_write;
+	return ret;
 }
 
 int sg_writefm(void *device, size_t count, struct tc_position *pos, bool immed)
