@@ -1864,7 +1864,7 @@ static int _cdb_read(void *device, char *buf, size_t size, bool sili)
 	return length;
 }
 
-static inline int _handle_block_write_failure(void *device, struct tc_position *pos, char *op)
+static inline int _resolve_position_after_io_cmd_failure(void *device, struct tc_position *pos, char *op)
 {
 	int ret = 0;
 	struct tc_position tmp_pos = {0, 0};
@@ -1983,8 +1983,11 @@ start_read:
 		ret = _cdb_read(device, buf, datacount, unusual_size);
 	} else if (ret == -EDEV_BUFFER_ALLOCATE_ERROR && retry_count < MAX_RETRY) {
 		ltfsmsg(LTFS_WARN, 30277W, ++retry_count);
-		sleep(3); // Wait for kernel GC
-		ret = _handle_block_write_failure(device, pos, "read");
+		struct timespec delay_ts;
+		delay_ts.tv_sec  = 3;
+		delay_ts.tv_nsec = 0;
+		nanosleep(&delay_ts, NULL); // Wait for kernel GC
+		ret = _resolve_position_after_io_cmd_failure(device, pos, "read");
 		if (ret == -EDEV_RETRY)
 			goto start_read;
 	}
@@ -2099,6 +2102,7 @@ int sg_write(void *device, const char *buf, size_t count, struct tc_position *po
 	struct tc_position cur_pos;
 	size_t datacount = count;
 	int retry_count = 0, por_retry_count = 0;
+	struct timespec delay_ts = {0};
 
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_ENTER(REQ_TC_WRITE));
 
@@ -2147,21 +2151,28 @@ start_write:
 		}
 	} else if (ret == -EDEV_BUFFER_ALLOCATE_ERROR && retry_count < MAX_RETRY) {
 		ltfsmsg(LTFS_WARN, 30277W, ++retry_count);
-		sleep(3); // Wait for kernel GC
-		ret = _handle_block_write_failure(device, pos, "write");
+		delay_ts.tv_sec  = 3;
+		delay_ts.tv_nsec = 0;
+		nanosleep(&delay_ts, NULL); // Wait for kernel GC
+		ret = _resolve_position_after_io_cmd_failure(device, pos, "write");
 		if (ret == -EDEV_RETRY)
 			goto start_write;
 	} else if (ret == -EDEV_HOST_ERROR && por_retry_count < POR_MAX_RETRIES) {
 		por_retry_count++;
-		sleep(5);
+		delay_ts.tv_sec  = 5;
+		delay_ts.tv_nsec = 0;
+		nanosleep(&delay_ts, NULL);
 		ret = _clear_por(priv);
 		if (ret == DEVICE_GOOD) {
-			ret = _handle_block_write_failure(device, pos, "write");
-				if (ret == -EDEV_RETRY)
-					goto start_write;
-			ret = DEVICE_GOOD;
-		} else
-		  ret = ret_write;
+			int handle_ret = _resolve_position_after_io_cmd_failure(device, pos, "write");
+			/* If the original command did not reach the driver, or it reached it but after failing there is block mismatch; retry */
+			if (handle_ret == -EDEV_RETRY) {
+				ltfsmsg(LTFS_WARN, 30298W, por_retry_count);
+				goto start_write;
+			}
+		}
+		// If we could not clear the POR status, just return the _cdb_write() return value
+		ret = ret_write;
 	}
 
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_EXIT(REQ_TC_WRITE));
