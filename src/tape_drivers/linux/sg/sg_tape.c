@@ -2170,8 +2170,11 @@ start_write:
 				ltfsmsg(LTFS_WARN, 30298W, por_retry_count);
 				goto start_write;
 			}
-		} else // If we could not clear the POR status, just return the _cdb_write() return value
-  		ret = ret_write;
+		}
+		// If we could not clear the POR status, just return the _cdb_write() return value
+		else {
+  		    ret = ret_write;
+  		}
 	}
 
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_EXIT(REQ_TC_WRITE));
