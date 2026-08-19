@@ -2165,14 +2165,13 @@ start_write:
 		ret = _clear_por(priv);
 		if (ret == DEVICE_GOOD) {
 			int handle_ret = _resolve_position_after_io_cmd_failure(device, pos, "write");
-			/* If the original command did not reach the driver, or it reached it but after failing there is block mismatch; retry */
+			/* If the original command did not reach the driver, or it reached it but after failing there is a position mismatch; retry */
 			if (handle_ret == -EDEV_RETRY) {
 				ltfsmsg(LTFS_WARN, 30298W, por_retry_count);
 				goto start_write;
 			}
-		}
-		// If we could not clear the POR status, just return the _cdb_write() return value
-		ret = ret_write;
+		} else // If we could not clear the POR status, just return the _cdb_write() return value
+  		ret = ret_write;
 	}
 
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_EXIT(REQ_TC_WRITE));
