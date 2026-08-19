@@ -1921,11 +1921,12 @@ static inline int _resolve_position_after_io_cmd_failure(void *device, struct tc
 int sg_read(void *device, char *buf, size_t size,
 					struct tc_position *pos, const bool unusual_size)
 {
-	int32_t ret = -EDEV_UNKNOWN;
+ 	int32_t ret = -EDEV_UNKNOWN, ret_read = -1;
 	struct sg_data *priv = (struct sg_data*)device;
 	size_t datacount = size;
 	struct tc_position pos_retry = {0, 0};
-	int retry_count = 0;
+	int retry_count = 0, por_retry_count = 0;
+	struct timespec delay_ts = {0};
 
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_ENTER(REQ_TC_READ));
 	ltfsmsg(LTFS_DEBUG3, 30395D, "read", size, priv->drive_serial);
@@ -1950,7 +1951,7 @@ int sg_read(void *device, char *buf, size_t size,
 	}
 
 start_read:
-	ret = _cdb_read(device, buf, datacount, unusual_size);
+	ret_read = ret = _cdb_read(device, buf, datacount, unusual_size);
 	if (ret == -EDEV_LENGTH_MISMATCH) {
 		if (pos_retry.partition || pos_retry.block) {
 			/* Return error when retry is already executed */
@@ -1990,7 +1991,25 @@ start_read:
 		ret = _resolve_position_after_io_cmd_failure(device, pos, "read");
 		if (ret == -EDEV_RETRY)
 			goto start_read;
+	} else if (ret == -EDEV_HOST_ERROR && por_retry_count < POR_MAX_RETRIES) {
+		por_retry_count++;
+		delay_ts.tv_sec  = 5;
+		delay_ts.tv_nsec = 0;
+		nanosleep(&delay_ts, NULL);
+		ret = _clear_por(priv);
+		if (ret == DEVICE_GOOD) {
+			int handle_ret = _resolve_position_after_io_cmd_failure(device, pos, "read");
+			/* If the original command did not reach the driver, or it reached it but after failing there is a position mismatch; retry */
+			if (handle_ret == -EDEV_RETRY) {
+				ltfsmsg(LTFS_WARN, 30298W, "read", por_retry_count);
+				goto start_read; // NOTE: DO we need to clear the buffer before the retry?
+			}
+		} else {
+			// If we could not clear the POR status, just return the _cbd_read() status
+			ret = ret_read;
+		}
 	}
+
 
 	if(ret == -EDEV_FILEMARK_DETECTED)
 	{
@@ -2167,7 +2186,7 @@ start_write:
 			int handle_ret = _resolve_position_after_io_cmd_failure(device, pos, "write");
 			/* If the original command did not reach the driver, or it reached it but after failing there is a position mismatch; retry */
 			if (handle_ret == -EDEV_RETRY) {
-				ltfsmsg(LTFS_WARN, 30298W, por_retry_count);
+				ltfsmsg(LTFS_WARN, 30298W, "write", por_retry_count);
 				goto start_write;
 			}
 		} else {
@@ -3349,7 +3368,15 @@ int sg_modeselect(void *device, unsigned char *buf, const size_t size)
 
 	/* Build CDB */
 	cdb[0] = MODE_SELECT10;
-	cdb[1] = 0x10; /* Set PF bit */
+	/*
+	*  Set PF and SP bit
+	* NOTE: Not all modepages support SP bit.
+	* The SCSI reference says:
+	*     • SP (Save Pages): Only allowed to be set to one when explicitly mentioned in the description of the
+	*       specific mode page
+	* Right now SDE and LE does not set any non savable pages, but this could change.
+	* */
+	cdb[1] = 0x11;
 	ltfs_u16tobe(cdb + 7, size);
 
 	timeout = get_timeout(priv->timeouts, cdb[0]);
