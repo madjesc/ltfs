@@ -1992,22 +1992,26 @@ start_read:
 		if (ret == -EDEV_RETRY)
 			goto start_read;
 	} else if (ret == -EDEV_HOST_ERROR && por_retry_count < POR_MAX_RETRIES) {
+	  ltfsmsg(LTFS_WARN, 30298W, "read", por_retry_count);
 		por_retry_count++;
 		delay_ts.tv_sec  = 5;
 		delay_ts.tv_nsec = 0;
 		nanosleep(&delay_ts, NULL);
 		ret = _clear_por(priv);
 		if (ret == DEVICE_GOOD) {
-			int handle_ret = _resolve_position_after_io_cmd_failure(device, pos, "read");
+			ret = _resolve_position_after_io_cmd_failure(device, pos, "read");
 			/* If the original command did not reach the driver, or it reached it but after failing there is a position mismatch; retry */
-			if (handle_ret == -EDEV_RETRY) {
-				ltfsmsg(LTFS_WARN, 30298W, "read", por_retry_count);
-				goto start_read; // NOTE: DO we need to clear the buffer before the retry?
+			if (ret == -EDEV_RETRY) {
+				goto start_read;
+			} else if (ret == 0) {
+			  ret_read = datacount; // This is OK? Might need to set the block instead of that
+			} else {
+	      ltfsmsg(LTFS_ERR, 30300E, ret);
 			}
 		} else {
-			// If we could not clear the POR status, just return the _cbd_read() status
-			ret = ret_read;
+		  ltfsmsg(LTFS_ERR, 30299E, ret);
 		}
+		ret = ret_read;
 	}
 
 
@@ -2177,22 +2181,26 @@ start_write:
 		if (ret == -EDEV_RETRY)
 			goto start_write;
 	} else if (ret == -EDEV_HOST_ERROR && por_retry_count < POR_MAX_RETRIES) {
+    ltfsmsg(LTFS_WARN, 30298W, "write", por_retry_count);
 		por_retry_count++;
 		delay_ts.tv_sec  = 5;
 		delay_ts.tv_nsec = 0;
 		nanosleep(&delay_ts, NULL);
 		ret = _clear_por(priv);
 		if (ret == DEVICE_GOOD) {
-			int handle_ret = _resolve_position_after_io_cmd_failure(device, pos, "write");
+			ret = _resolve_position_after_io_cmd_failure(device, pos, "write");
 			/* If the original command did not reach the driver, or it reached it but after failing there is a position mismatch; retry */
-			if (handle_ret == -EDEV_RETRY) {
-				ltfsmsg(LTFS_WARN, 30298W, "write", por_retry_count);
+			if (ret == -EDEV_RETRY) {
 				goto start_write;
+			} else if (ret == 0) {
+			  ret_write = datacount; // This is OK? Might need to set the blocksize instead of that
+			} else {
+	      ltfsmsg(LTFS_ERR, 30300E, ret);
 			}
 		} else {
-			// If we could not clear the POR status, just return the _cdb_write() return value
-			ret = ret_write;
+		  ltfsmsg(LTFS_ERR, 30299E, ret);
 		}
+		ret = ret_write;
 	}
 
 	ltfs_profiler_add_entry(priv->profiler, NULL, TAPEBEND_REQ_EXIT(REQ_TC_WRITE));
